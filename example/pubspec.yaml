@@ -13,13 +13,12 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   path_provider: ^1.5.1
+  git_bindings:
+    path: ../
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  git_bindings:
-    path: ../
 
 flutter:
   uses-material-design: true

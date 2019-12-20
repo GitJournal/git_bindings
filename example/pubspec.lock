@@ -75,7 +75,7 @@ packages:
     source: sdk
     version: "0.0.0"
   git_bindings:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       path: ".."
       relative: true
