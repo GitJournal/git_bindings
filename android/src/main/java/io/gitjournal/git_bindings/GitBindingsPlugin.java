@@ -33,12 +33,21 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), CHANNEL_NAME);
-        channel.setMethodCallHandler(new GitBindingsPlugin());
+        context = flutterPluginBinding.getApplicationContext();
+        channel.setMethodCallHandler(this);
 
         Git g = new Git();
         g.setupLib();
+    }
 
-        context = flutterPluginBinding.getApplicationContext();
+    public static void registerWith(Registrar registrar) {
+        GitBindingsPlugin instance = new GitBindingsPlugin();
+        instance.channel = new MethodChannel(registrar.messenger(), "plugins.flutter.io/path_provider");
+        instance.context = registrar.context();
+        instance.channel.setMethodCallHandler(instance);
+
+        Git g = new Git();
+        g.setupLib();
     }
 
     @Override

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-const _platform = MethodChannel('gitjournal.io/git_bindings');
+const _platform = MethodChannel('io.gitjournal.git_bindings');
 
 Future invokePlatformMethod(String method, [dynamic arguments]) async {
   return _platform.invokeMethod(method, arguments);

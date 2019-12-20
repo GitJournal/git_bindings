@@ -1,56 +1,17 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:git_bindings/git.dart';
 
-import 'package:flutter/services.dart';
-import 'package:git_bindings/git_bindings.dart';
+import 'gitapp.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
+  await setSshKeys(
+    privateKey: """
+""",
+    publicKey:
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDI+U1Q8aja8Ir/DiM33TLGG+sC9KZoCiGFibLNPc0unD3t5b1N3YlJAT4PcxxvRArXRoV3PVDXUgAXVs/sX0Uwy/CnBPfbze76bzA19GoQu1aRsVbwXTXWHOSWtB7XgCEGuP6kvriUvkZAG/wiscyJi28MjdANsF+Ob4b5MxhpiBxK3WqObLPk2BbuQWMbxDzf8ZaWJKvIYaeRJgTe+50oe610nrzD7UWLZzvCo7EZItAS7hhUPSdRinH1/yvTBcc2/J1wTb5vWOUGVVe9GBS7ZFfK5VQs6rqhTcOZCyf/SvLV6r8DcWQE+57C7WQutMusnZvHKFoMsIgPCR+KWGCf gitjournal git testing",
+  );
 
-class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      platformVersion = await GitBindings.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
-        ),
-      ),
-    );
-  }
+  runApp(GitApp());
 }
