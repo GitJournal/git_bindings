@@ -1,4 +1,4 @@
-group 'com.example.git_bindings'
+group 'io.gitjournal.git_bindings'
 version '1.0'
 
 buildscript {
@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:3.2.1'
     }
 }
 
@@ -25,10 +25,36 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
+        targetSdkVersion 28
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
+        sourceSets {
+            main {
+                jniLibs.srcDirs = ['libs']
+                java.srcDirs = ['src']
+            }
+        }
     }
+
     lintOptions {
         disable 'InvalidPackage'
     }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.annotation:annotation:1.1.0'
+    // For reading a file to string
+    implementation 'commons-io:commons-io:2.5'
 }
