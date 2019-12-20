@@ -1,6 +1,6 @@
 name: git_bindings
 description: Bindings for libgit2
-version: 0.0.1
+version: 0.0.2
 homepage: https://gitjournal.io
 
 environment:
