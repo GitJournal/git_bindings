@@ -57,7 +57,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
         final String privateKeyPath = sshKeysLocation + "/id_rsa";
         final String publicKeyPath = sshKeysLocation + "/id_rsa.pub";
 
-        Log.d("GitJournalAndroid", "Called method " + call.method);
+        Log.i("GitJournalAndroid", "Called method " + call.method);
         if (call.arguments instanceof Map) {
             Map<String, Object> map = (Map<String, Object>) call.arguments;
             for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -66,14 +66,11 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
                 if (val != null) {
                     objVal = val.toString();
                 }
-                Log.d("GitJournalAndroid", ".  " + entry.getKey() + ": " + val);
+                Log.i("GitJournalAndroid", ".  " + entry.getKey() + ": " + val);
             }
         }
 
-        if (call.method.equals("getBaseDirectory")) {
-            result.success(filesDir);
-            return;
-        } else if (call.method.equals("gitClone")) {
+        if (call.method.equals("gitClone")) {
             String cloneUrl = call.argument("cloneUrl");
             String folderPath = call.argument("folderPath");
 
