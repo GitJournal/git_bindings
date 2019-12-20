@@ -1,6 +1,6 @@
 name: git_bindings
-description: Bindings for libgit2
-version: 0.0.2
+description: Provides a Git Higher level API using libgit2
+version: 0.0.3
 homepage: https://gitjournal.io
 
 environment:
