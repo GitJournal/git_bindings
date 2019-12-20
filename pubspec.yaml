@@ -1,7 +1,6 @@
 name: git_bindings
 description: Bindings for libgit2
 version: 0.0.1
-author: Vishesh Handa <me@vhanda.in>
 homepage: https://gitjournal.io
 
 environment:
