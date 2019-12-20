@@ -1,0 +1,13 @@
+import 'dart:async';
+
+import 'package:flutter/services.dart';
+
+class GitBindings {
+  static const MethodChannel _channel =
+      const MethodChannel('git_bindings');
+
+  static Future<String> get platformVersion async {
+    final String version = await _channel.invokeMethod('getPlatformVersion');
+    return version;
+  }
+}
