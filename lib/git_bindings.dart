@@ -130,6 +130,10 @@ Future<void> setSshKeys({
   });
 }
 
+Future<String> getSSHPublicKey() async {
+  return await invokePlatformMethod('getSSHPublicKey');
+}
+
 class GitException implements Exception {
   final String cause;
   GitException(this.cause);

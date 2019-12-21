@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -9,7 +11,6 @@ void main() {
 }
 
 const gitFolderName = "journal";
-String cloneUrl = "git@github.com:GitJournal/journal_test.git";
 
 class GitApp extends StatefulWidget {
   @override
@@ -20,9 +21,21 @@ class _GitAppState extends State<GitApp> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   GitRepo gitRepo;
 
+  var cloneUrl = "git@github.com:GitJournal/journal_test.git";
+  TextEditingController cloneUrlController;
+
+  String publicKey = "";
+
   @override
   void initState() {
     super.initState();
+
+    cloneUrlController = TextEditingController(text: cloneUrl);
+    getSSHPublicKey().then((val) {
+      setState(() {
+        publicKey = val;
+      });
+    });
 
     getApplicationSupportDirectory().then((dir) async {
       var repoPath = p.join(dir.path, gitFolderName);
@@ -37,6 +50,36 @@ class _GitAppState extends State<GitApp> {
 
   @override
   Widget build(BuildContext context) {
+    var cloneUrlWidget = TextField(
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        hintText: "Clone URL",
+      ),
+      onChanged: (newValue) {
+        setState(() {
+          cloneUrl = newValue;
+        });
+      },
+      controller: cloneUrlController,
+    );
+
+    var publicKeyWidget = Container(
+      child: Text(publicKey),
+      margin: const EdgeInsets.all(15.0),
+      padding: const EdgeInsets.all(3.0),
+      decoration: BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+    );
+
+    var columns = Column(
+      children: [
+        cloneUrlWidget,
+        ..._buildGitButtons(),
+        publicKeyWidget,
+      ],
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+    );
+
     return MaterialApp(
       title: 'Git App',
       home: Scaffold(
@@ -44,10 +87,9 @@ class _GitAppState extends State<GitApp> {
         appBar: AppBar(
           title: const Text('Git Test'),
         ),
-        body: Column(
-          children: _buildGitButtons(),
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
+        body: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: SingleChildScrollView(child: columns),
         ),
       ),
     );
@@ -69,10 +111,21 @@ class _GitAppState extends State<GitApp> {
   List<Widget> _buildGitButtons() {
     return <Widget>[
       RaisedButton(
-          child: const Text("Generate Keys"),
-          onPressed: () {
-            generateSSHKeys(comment: "Git Sample App");
-          }),
+        child: const Text("Generate Keys"),
+        onPressed: () async {
+          var key = await generateSSHKeys(comment: "Git Sample App");
+          setState(() {
+            publicKey = key;
+          });
+        },
+      ),
+      RaisedButton(
+        child: const Text("Copy Key to Clipboard"),
+        onPressed: () async {
+          await Clipboard.setData(ClipboardData(text: publicKey));
+          _sendSuccess();
+        },
+      ),
       RaisedButton(
         child: const Text("Git Clone"),
         onPressed: () async {
