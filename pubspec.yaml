@@ -1,6 +1,7 @@
 name: git_bindings
-description: Provides a Git Higher level API using libgit2
-version: 0.0.3
+description: Provides a Git Higher level API using libgit2. It can be used
+  with both iOS and Android.
+version: 0.0.4
 homepage: https://gitjournal.io
 
 environment:
