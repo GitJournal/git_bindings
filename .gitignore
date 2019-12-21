@@ -1,4 +1,8 @@
 .vscode
+.classpath
+.project
+.settings/
+
 .DS_Store
 .dart_tool/
 
