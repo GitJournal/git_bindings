@@ -290,6 +290,12 @@ typedef struct
     int error_code;
 } gj_credentials_payload;
 
+bool file_exists(char *filename)
+{
+    struct stat buffer;
+    return (stat(filename, &buffer) == 0);
+}
+
 int credentials_cb(git_cred **out, const char *url, const char *username_from_url,
                    unsigned int allowed_types, void *payload)
 {
@@ -311,6 +317,19 @@ int credentials_cb(git_cred **out, const char *url, const char *username_from_ur
     if (!(allowed_types & GIT_CREDTYPE_SSH_KEY))
     {
         gj_log_internal("Some other auth mechanism is being used: %d\n", allowed_types);
+        return -1;
+    }
+
+    // Check if credential files exist
+    if (!file_exists(g_public_key_path))
+    {
+        gj_log_internal("Public Key Not Found: %s\n", g_public_key_path);
+        return -1;
+    }
+
+    if (!file_exists(g_private_key_path))
+    {
+        gj_log_internal("Private Key Not Found: %s\n", g_private_key_path);
         return -1;
     }
 
