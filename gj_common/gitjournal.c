@@ -380,29 +380,12 @@ cleanup:
     return err;
 }
 
-char *gj_branch_name(git_repository *repo)
-{
-    int err = 0;
-    git_reference *ref = NULL;
-    char *shorthand = "master";
-
-    err = git_repository_head(&ref, repo);
-    if (err < 0)
-        goto cleanup;
-
-    shorthand = (char *)git_reference_shorthand(ref);
-
-cleanup:
-    git_reference_free(ref);
-
-    return shorthand;
-}
-
 int gj_git_push(const char *git_base_path)
 {
     int err = 0;
     git_repository *repo = NULL;
     git_remote *remote = NULL;
+    git_reference *ref_head = NULL;
     char *name = NULL;
 
     err = git_repository_open(&repo, git_base_path);
@@ -413,22 +396,21 @@ int gj_git_push(const char *git_base_path)
     if (err < 0)
         goto cleanup;
 
-    // Get remote name
-    const char *branch_name = gj_branch_name(repo);
-    char *base_name = "refs/heads/";
+    // Get current branch
+    err = git_repository_head(&ref_head, repo);
+    if (err < 0)
+        goto cleanup;
 
-    int name_length = strlen(base_name) + strlen(branch_name);
-    name = (char *)malloc(name_length);
-    if (name == NULL)
+    git_reference_t head_type = git_reference_type(ref_head);
+    if (head_type != GIT_REFERENCE_DIRECT)
     {
-        gj_log_internal("gj_git_push: malloc string failed. Length: %d", name_length);
-        err = 5000;
+        // vHanda: Why are you a direct reference!!
+        gj_log_internal("git push: head is not a direct ref: %d\n", head_type);
         goto cleanup;
     }
-    strcpy(name, base_name);
-    strcat(name, branch_name);
 
-    const git_strarray refs = {&name, 1};
+    char *ref_head_name = (char *)git_reference_name(ref_head);
+    const git_strarray refs = {&ref_head_name, 1};
 
     git_push_options options = GIT_PUSH_OPTIONS_INIT;
 
@@ -442,6 +424,7 @@ int gj_git_push(const char *git_base_path)
 
 cleanup:
     free(name);
+    git_reference_free(ref_head);
     git_remote_free(remote);
     git_repository_free(repo);
 
@@ -491,6 +474,7 @@ int gj_git_pull(const char *git_base_path, const char *author_name, const char *
     git_repository *repo = NULL;
     git_remote *remote = NULL;
     git_annotated_commit *origin_annotated_commit = NULL;
+    git_reference *head_ref = NULL;
     git_reference *origin_head_ref = NULL;
     git_index *index = NULL;
     git_index_conflict_iterator *conflict_iter = NULL;
@@ -527,22 +511,11 @@ int gj_git_pull(const char *git_base_path, const char *author_name, const char *
     if (err < 0)
         goto cleanup;
 
-    // Get remote name
-    const char *branch_name = gj_branch_name(repo);
-    char *base_name = "refs/remotes/origin/";
-
-    int name_length = strlen(base_name) + strlen(branch_name);
-    name = (char *)malloc(name_length);
-    if (name == NULL)
-    {
-        gj_log_internal("gj_git_pull: malloc string failed. Length: %d", name_length);
-        err = 5000;
+    err = git_repository_head(&head_ref, repo);
+    if (err < 0)
         goto cleanup;
-    }
-    strcpy(name, base_name);
-    strcat(name, branch_name);
 
-    err = git_reference_lookup(&origin_head_ref, repo, name);
+    err = git_branch_upstream(&origin_head_ref, head_ref);
     if (err < 0)
         goto cleanup;
 
@@ -684,6 +657,7 @@ cleanup:
         git_repository_state_cleanup(repo);
     git_index_conflict_iterator_free(conflict_iter);
     git_index_free(index);
+    git_reference_free(head_ref);
     git_reference_free(origin_head_ref);
     git_annotated_commit_free(origin_annotated_commit);
     git_remote_free(remote);
