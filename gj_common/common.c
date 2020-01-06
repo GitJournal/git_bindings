@@ -57,6 +57,16 @@ gj_error *gj_error_info(int err)
             error->code = err;
             error->message = "Invalid Credentials";
             break;
+
+        case GJ_ERR_MISSING_PUBLIC_KEY:
+            error->code = err;
+            error->message = "Missing Public SSH Key";
+            break;
+
+        case GJ_ERR_MISSING_PRIVATE_KEY:
+            error->code = err;
+            error->message = "Missing Private SSH Key";
+            break;
         }
         return error;
     }
@@ -79,7 +89,7 @@ gj_error *gj_error_info(int err)
     else
     {
         error->code = 1000;
-        error->message = "Unknown Message";
+        error->message = "Unknown Error";
     }
 
     return error;

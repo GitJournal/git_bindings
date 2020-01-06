@@ -309,7 +309,7 @@ int credentials_cb(git_cred **out, const char *url, const char *username_from_ur
     {
         gj_payload->error_code = GJ_ERR_INVALID_CREDENTIALS;
         gj_log_internal("GitJournal: Credentials have been tried and they failed\n");
-        return -1;
+        return GJ_ERR_INVALID_CREDENTIALS;
     }
 
     gj_log_internal("Url: %s\n", url);
@@ -323,14 +323,16 @@ int credentials_cb(git_cred **out, const char *url, const char *username_from_ur
     // Check if credential files exist
     if (!file_exists(g_public_key_path))
     {
+        gj_payload->error_code = GJ_ERR_MISSING_PUBLIC_KEY;
         gj_log_internal("Public Key Not Found: %s\n", g_public_key_path);
-        return -1;
+        return GJ_ERR_MISSING_PUBLIC_KEY;
     }
 
     if (!file_exists(g_private_key_path))
     {
+        gj_payload->error_code = GJ_ERR_MISSING_PRIVATE_KEY;
         gj_log_internal("Private Key Not Found: %s\n", g_private_key_path);
-        return -1;
+        return GJ_ERR_MISSING_PRIVATE_KEY;
     }
 
     gj_payload->first_time = false;
