@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-const _platform = MethodChannel('io.gitjournal.git_bindings');
+// Hack because I don't understand how to link libraries in ios
+var channelName =
+    Platform.isIOS ? "gitjournal.io/git" : 'io.gitjournal.git_bindings';
+var _platform = MethodChannel(channelName);
 
 Future invokePlatformMethod(String method, [dynamic arguments]) async {
   return _platform.invokeMethod(method, arguments);
