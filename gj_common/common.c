@@ -23,6 +23,8 @@ gj_error *gj_error_info(int err)
     if (err == 0)
         return NULL;
 
+    gj_log_internal("gj_error_info: %d", err);
+
     gj_error *error = (gj_error *)malloc(sizeof(gj_error));
     if (error == NULL)
     {
