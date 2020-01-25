@@ -42,7 +42,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
 
     public static void registerWith(Registrar registrar) {
         GitBindingsPlugin instance = new GitBindingsPlugin();
-        instance.channel = new MethodChannel(registrar.messenger(), "plugins.flutter.io/path_provider");
+        instance.channel = new MethodChannel(registrar.messenger(), CHANNEL_NAME);
         instance.context = registrar.context();
         instance.channel.setMethodCallHandler(instance);
 
