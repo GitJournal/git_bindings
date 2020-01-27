@@ -215,7 +215,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
                 publicKey = FileUtils.readFileToString(new File(publicKeyPath), Charset.defaultCharset());
             } catch (IOException ex) {
                 Log.d("getSSHPublicKey", ex.toString());
-                result.error("FAILED", "Failed to read the public key", null);
+                result.error("FAILED", "Failed to read the public key: " + ex.toString(), null);
                 return;
             }
 
