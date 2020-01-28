@@ -656,7 +656,8 @@ int gj_git_pull(const char *git_base_path, const char *author_name, const char *
                 goto cleanup;
 
             // 3. We add it to the index
-            err = git_index_add_bypath(index, our_out->path);
+            git_strarray paths = {(char **)&our_out->path, 1};
+            err = git_index_add_all(index, &paths, 0, NULL, NULL);
             if (err < 0)
                 goto cleanup;
 
