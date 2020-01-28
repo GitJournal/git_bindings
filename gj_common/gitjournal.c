@@ -473,6 +473,56 @@ cleanup:
     return err;
 }
 
+void gj_resolve_conflict(const char *git_base_path, git_index_entry *ancesstor_index,
+                         git_index_entry *our_index, git_index_entry *their_index)
+{
+    gj_log_internal("gj_resolve_conflict\n");
+
+    int err = 0;
+    git_odb *odb = NULL;
+    char *objects_path = NULL;
+    git_odb_object *odb_object = NULL;
+    char *file_full_path = NULL;
+    FILE *file = NULL;
+
+    char *objects_suffix = "/.git/objects";
+    objects_path = malloc(strlen(git_base_path) + strlen(objects_suffix));
+    objects_path[0] = 0;
+
+    strcat(objects_path, git_base_path);
+    strcat(objects_path, objects_suffix);
+
+    err = git_odb_open(&odb, objects_path);
+    if (err != 0)
+        goto cleanup;
+
+    err = git_odb_read(&odb_object, odb, &our_index->id);
+    if (err != 0)
+        goto cleanup;
+
+    // We should check that it is a blob
+    const char *file_data = (char *)git_odb_object_data(odb_object);
+
+    const char *file_path = our_index->path;
+    file_full_path = malloc(strlen(git_base_path) + 1 + strlen(file_path));
+    file_full_path[0] = 0;
+
+    strcat(file_full_path, git_base_path);
+    strcat(file_full_path, "/");
+    strcat(file_full_path, file_path);
+
+    file = fopen(file_full_path, "w");
+    fwrite((void *)file_data, strlen(file_data), 1, file);
+
+cleanup:
+    if (file != NULL)
+        fclose(file);
+    free(file_full_path);
+    git_odb_object_free(odb_object);
+    free(objects_path);
+    git_odb_free(odb);
+}
+
 int gj_git_pull(const char *git_base_path, const char *author_name, const char *author_email)
 {
     int err = 0;
@@ -597,15 +647,16 @@ int gj_git_pull(const char *git_base_path, const char *author_name, const char *
             gj_log_internal("GitPull: Conflict on file %s\n", their_out->path);
 
             // 1. We resolve the conflict by choosing their changes
-            // TODO:
+            gj_resolve_conflict(git_base_path, ancestor_out, our_out, their_out);
+            gj_log_internal("Resolved conflict on file %s\n", their_out->path);
 
             // 2. We remove it from the list of conflicts
-            err = git_index_conflict_remove(index, their_out->path);
+            err = git_index_conflict_remove(index, our_out->path);
             if (err < 0)
                 goto cleanup;
 
             // 3. We add it to the index
-            err = git_index_add_bypath(index, their_out->path);
+            err = git_index_add_bypath(index, our_out->path);
             if (err < 0)
                 goto cleanup;
 
