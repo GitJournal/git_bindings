@@ -23,12 +23,12 @@ gj_error *gj_error_info(int err)
     if (err == 0)
         return NULL;
 
-    gj_log_internal("gj_error_info: %d", err);
+    gj_log_internal("gj_error_info: %d\n", err);
 
     gj_error *error = (gj_error *)malloc(sizeof(gj_error));
     if (error == NULL)
     {
-        gj_log_internal("Failed to allocate gj_error");
+        gj_log_internal("Failed to allocate gj_error\n");
         return NULL;
     }
     error->message_allocated = false;
