@@ -355,7 +355,10 @@ int certificate_check_cb(git_cert *cert, int valid, const char *host, void *payl
         gj_log_internal("LibSSH2 Key: %p\n", payload);
         return 0;
     }
-    return -1;
+
+    // FIXME: We should be checking the certificate
+    gj_log_internal("Unknown Certificate Accepted\n");
+    return 0;
 }
 
 int gj_git_clone(const char *clone_url, const char *git_base_path)
