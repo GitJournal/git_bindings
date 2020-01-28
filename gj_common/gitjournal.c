@@ -476,7 +476,7 @@ cleanup:
 void gj_resolve_conflict(const char *git_base_path, git_index_entry *ancesstor_index,
                          git_index_entry *our_index, git_index_entry *their_index)
 {
-    gj_log_internal("gj_resolve_conflict\n");
+    gj_log_internal("gj_resolve_conflict %x %x %x\n", ancesstor_index, our_index, their_index);
 
     int err = 0;
     git_odb *odb = NULL;
