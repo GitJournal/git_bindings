@@ -42,12 +42,13 @@ int main(int argc, char *argv[])
     char *author_email = "TestMan@example.com";
     char *message = "Commit message for GitJournal";
 
-    err = gj_generate_ssh_keys("/tmp/t/id_rsa", "/tmp/t/id_rsa.pub", "Cookie");
+    //err = gj_generate_ssh_keys("/tmp/t/id_rsa", "/tmp/t/id_rsa.pub", "Cookie");
     //err = gj_git_init(git_base_path);
     //err = gj_git_commit(git_base_path, author_name, author_email, message);
     //err = gj_git_clone(clone_url, git_base_path);
-    //err = gj_git_push(git_base_path);
-    //err = gj_git_pull(git_base_path, author_name, author_email);
+    err = gj_git_push(git_base_path, "origin");
+    //err = gj_git_fetch(git_base_path, "origin");
+    //err = gj_git_merge(git_base_path, "origin/master", author_name, author_email);
     //err = gj_git_add(git_base_path, "9.md");
     //err = gj_git_rm(git_base_path, "9.md");
     //err = gj_git_reset_hard(git_base_path, "HEAD^");
