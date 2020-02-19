@@ -45,10 +45,24 @@ class GitRepo {
     }
   }
 
-  Future<void> pull() async {
+  Future<void> fetch(String remote) async {
+    try {
+      await invokePlatformMethod('gitFetch', {
+        'folderPath': folderPath,
+        'authorName': authorName,
+        'authorEmail': authorEmail,
+        'remote': remote,
+      });
+    } on PlatformException catch (e) {
+      throw createGitException(e.message);
+    }
+  }
+
+  Future<void> merge(String branch) async {
     try {
       await invokePlatformMethod('gitPull', {
         'folderPath': folderPath,
+        'branch': branch,
         'authorName': authorName,
         'authorEmail': authorEmail,
       });
@@ -79,10 +93,11 @@ class GitRepo {
     }
   }
 
-  Future<void> push() async {
+  Future<void> push(String remote) async {
     try {
       await invokePlatformMethod('gitPush', {
         'folderPath': folderPath,
+        'remote': remote,
       });
     } on PlatformException catch (e) {
       throw createGitException(e.message);

@@ -77,19 +77,36 @@ Java_io_gitjournal_git_1bindings_Git_clone(
 }
 
 JNIEXPORT jstring JNICALL
-Java_io_gitjournal_git_1bindings_Git_pull(
+Java_io_gitjournal_git_1bindings_Git_fetch(
     JNIEnv *env,
     jobject this_obj,
     jstring jni_git_base_path,
+    jstring jni_remote_name)
+{
+    UNUSED(this_obj);
+    const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
+    const char *remote_name = (*env)->GetStringUTFChars(env, jni_remote_name, 0);
+
+    int err = gj_git_fetch(git_base_path, remote_name);
+    return handle_error(env, err);
+}
+
+JNIEXPORT jstring JNICALL
+Java_io_gitjournal_git_1bindings_Git_merge(
+    JNIEnv *env,
+    jobject this_obj,
+    jstring jni_git_base_path,
+    jstring jni_git_branch_name,
     jstring jni_author_name,
     jstring jni_author_email)
 {
     UNUSED(this_obj);
     const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
+    const char *git_branch_name = (*env)->GetStringUTFChars(env, jni_git_branch_name, 0);
     const char *author_name = (*env)->GetStringUTFChars(env, jni_author_name, 0);
     const char *author_email = (*env)->GetStringUTFChars(env, jni_author_email, 0);
 
-    int err = gj_git_pull(git_base_path, author_name, author_email);
+    int err = gj_git_merge(git_base_path, git_branch_name, author_name, author_email);
     return handle_error(env, err);
 }
 
@@ -97,12 +114,14 @@ JNIEXPORT jstring JNICALL
 Java_io_gitjournal_git_1bindings_Git_push(
     JNIEnv *env,
     jobject this_obj,
-    jstring jni_git_base_path)
+    jstring jni_git_base_path,
+    jstring jni_remote_name)
 {
     UNUSED(this_obj);
     const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
+    const char *remote_name = (*env)->GetStringUTFChars(env, jni_remote_name, 0);
 
-    int err = gj_git_push(git_base_path);
+    int err = gj_git_push(git_base_path, remote_name);
     return handle_error(env, err);
 }
 

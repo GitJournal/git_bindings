@@ -14,8 +14,9 @@ public class Git {
     public native String init(String basePath);
     public native String clone(String cloneUrl, String basePath);
 
-    public native String pull(String basePath, String authorName, String authorEmail);
-    public native String push(String basePath);
+    public native String merge(String basePath, String branch, String authorName, String authorEmail);
+    public native String fetch(String basePath, String remote);
+    public native String push(String basePath, String remote);
 
     public native String commit(String basePath, String authorName, String authorEmail, String message);
     public native String resetHard(String basePath, String ref);
