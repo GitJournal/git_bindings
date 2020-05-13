@@ -66,8 +66,7 @@ dependencies {
 task extractLibGit2 {
     doLast {
         download {
-            // src comes from https://circleci.com/api/v1.1/project/github/GitJournal/ndk-libraries/15/artifacts
-            src 'https://15-184715505-gh.circle-artifacts.com/0/libs.tar'
+            src 'https://github.com/GitJournal/ndk-libraries/releases/download/v0.1/libs.tar'
             dest 'libs.tar.gz'
             overwrite false
         }
