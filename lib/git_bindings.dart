@@ -15,13 +15,9 @@ Future invokePlatformMethod(String method, [dynamic arguments]) async {
 
 class GitRepo {
   final String folderPath;
-  final String authorName;
-  final String authorEmail;
 
   const GitRepo({
     @required this.folderPath,
-    @required this.authorName,
-    @required this.authorEmail,
   });
 
   static Future<void> clone(String folderPath, String cloneUrl) async {
@@ -45,7 +41,10 @@ class GitRepo {
     }
   }
 
-  Future<void> pull() async {
+  Future<void> pull({
+    @required String authorName,
+    @required String authorEmail,
+  }) async {
     try {
       await invokePlatformMethod('gitPull', {
         'folderPath': folderPath,
@@ -102,7 +101,12 @@ class GitRepo {
 
   // FIXME: Change the datetime
   // FIXME: Actually implement the 'when'
-  Future<void> commit({@required String message, String when}) async {
+  Future<void> commit({
+    @required String message,
+    @required String authorName,
+    @required String authorEmail,
+    String when,
+  }) async {
     try {
       await invokePlatformMethod('gitCommit', {
         'folderPath': folderPath,

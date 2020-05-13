@@ -41,8 +41,6 @@ class _GitAppState extends State<GitApp> {
       var repoPath = p.join(dir.path, gitFolderName);
       gitRepo = GitRepo(
         folderPath: repoPath,
-        authorName: "Vishesh Handa",
-        authorEmail: "noemail@example.com",
       );
       print("GitRepo Initialized");
     });
@@ -141,7 +139,10 @@ class _GitAppState extends State<GitApp> {
       RaisedButton(
         child: const Text("Git Pull"),
         onPressed: () async {
-          gitRepo.pull();
+          gitRepo.pull(
+            authorName: "Vishesh Handa",
+            authorEmail: "noemail@example.com",
+          );
         },
       ),
       RaisedButton(
@@ -162,6 +163,8 @@ class _GitAppState extends State<GitApp> {
           gitRepo.commit(
             message: "Default message from GitJournal",
             when: "2017-10-20T01:21:10+02:00",
+            authorName: "Vishesh Handa",
+            authorEmail: "noemail@example.com",
           );
         },
       ),
