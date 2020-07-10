@@ -66,7 +66,7 @@ dependencies {
 task extractLibGit2 {
     doLast {
         download {
-            src 'https://github.com/GitJournal/ndk-libraries/releases/download/v0.1/libs.tar'
+            src 'https://github.com/GitJournal/ndk-libraries/releases/download/v0.2/libs.tar'
             dest 'libs.tar.gz'
             overwrite false
         }
