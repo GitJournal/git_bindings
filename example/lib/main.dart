@@ -139,7 +139,9 @@ class _GitAppState extends State<GitApp> {
       RaisedButton(
         child: const Text("Git Pull"),
         onPressed: () async {
-          gitRepo.pull(
+          await gitRepo.fetch("origin");
+          await gitRepo.merge(
+            branch: "origin/master",
             authorName: "Vishesh Handa",
             authorEmail: "noemail@example.com",
           );
@@ -154,7 +156,7 @@ class _GitAppState extends State<GitApp> {
       RaisedButton(
         child: const Text("Git Push"),
         onPressed: () async {
-          gitRepo.push();
+          gitRepo.push("origin");
         },
       ),
       RaisedButton(

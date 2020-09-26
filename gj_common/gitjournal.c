@@ -277,17 +277,31 @@ char *g_public_key_path = NULL;
 char *g_private_key_path = NULL;
 char *g_passcode = NULL;
 
+char *g_http_username = NULL;
+char *g_http_password = NULL;
+
+bool g_use_ssh = true;
+
 void gj_set_ssh_keys_paths(char *public_key, char *private_key, char *passcode)
 {
     g_public_key_path = public_key;
     g_private_key_path = private_key;
     g_passcode = passcode;
+    g_use_ssh = true;
+}
+
+void gj_set_http_auth(char *username, char *password)
+{
+    g_http_username = username;
+    g_http_password = password;
+    g_use_ssh = false;
 }
 
 typedef struct
 {
     bool first_time;
     int error_code;
+    bool ssh;
 } gj_credentials_payload;
 
 bool file_exists(char *filename)
@@ -314,30 +328,39 @@ int credentials_cb(git_cred **out, const char *url, const char *username_from_ur
 
     gj_log_internal("Url: %s\n", url);
 
-    if (!(allowed_types & GIT_CREDTYPE_SSH_KEY))
+    if (!((allowed_types & GIT_CREDTYPE_SSH_KEY) | (allowed_types & GIT_CREDTYPE_USERPASS_PLAINTEXT)))
     {
         gj_log_internal("Some other auth mechanism is being used: %d\n", allowed_types);
         return -1;
     }
 
-    // Check if credential files exist
-    if (!file_exists(g_public_key_path))
+    if (gj_payload->ssh)
     {
-        gj_payload->error_code = GJ_ERR_MISSING_PUBLIC_KEY;
-        gj_log_internal("Public Key Not Found: %s\n", g_public_key_path);
-        return GJ_ERR_MISSING_PUBLIC_KEY;
-    }
 
-    if (!file_exists(g_private_key_path))
+        // Check if credential files exist
+        if (!file_exists(g_public_key_path))
+        {
+            gj_payload->error_code = GJ_ERR_MISSING_PUBLIC_KEY;
+            gj_log_internal("Public Key Not Found: %s\n", g_public_key_path);
+            return GJ_ERR_MISSING_PUBLIC_KEY;
+        }
+
+        if (!file_exists(g_private_key_path))
+        {
+            gj_payload->error_code = GJ_ERR_MISSING_PRIVATE_KEY;
+            gj_log_internal("Private Key Not Found: %s\n", g_private_key_path);
+            return GJ_ERR_MISSING_PRIVATE_KEY;
+        }
+
+        gj_payload->first_time = false;
+        return git_cred_ssh_key_new(out, username_from_url,
+                                    g_public_key_path, g_private_key_path, g_passcode);
+    }
+    else
     {
-        gj_payload->error_code = GJ_ERR_MISSING_PRIVATE_KEY;
-        gj_log_internal("Private Key Not Found: %s\n", g_private_key_path);
-        return GJ_ERR_MISSING_PRIVATE_KEY;
+        gj_payload->first_time = false;
+        return git_cred_userpass_plaintext_new(out, g_http_username, g_http_password);
     }
-
-    gj_payload->first_time = false;
-    return git_cred_ssh_key_new(out, username_from_url,
-                                g_public_key_path, g_private_key_path, g_passcode);
 }
 
 int certificate_check_cb(git_cert *cert, int valid, const char *host, void *payload)
@@ -355,6 +378,11 @@ int certificate_check_cb(git_cert *cert, int valid, const char *host, void *payl
         gj_log_internal("LibSSH2 Key: %p\n", payload);
         return 0;
     }
+    if (cert->cert_type == GIT_CERT_X509)
+    {
+        gj_log_internal("Cert X509 Key: %p\n", payload);
+        return 0;
+    }
 
     // FIXME: We should be checking the certificate
     gj_log_internal("Unknown Certificate Accepted\n");
@@ -369,7 +397,7 @@ int gj_git_clone(const char *clone_url, const char *git_base_path)
     options.fetch_opts.callbacks.transfer_progress = fetch_progress;
     options.fetch_opts.callbacks.certificate_check = certificate_check_cb;
 
-    gj_credentials_payload gj_payload = {true, 0};
+    gj_credentials_payload gj_payload = {true, 0, g_use_ssh};
     options.fetch_opts.callbacks.payload = (void *)&gj_payload;
     options.fetch_opts.callbacks.credentials = credentials_cb;
 
@@ -385,7 +413,7 @@ cleanup:
     return err;
 }
 
-int gj_git_push(const char *git_base_path)
+int gj_git_push(const char *git_base_path, const char *remote_name)
 {
     int err = 0;
     git_repository *repo = NULL;
@@ -397,7 +425,7 @@ int gj_git_push(const char *git_base_path)
     if (err < 0)
         goto cleanup;
 
-    err = git_remote_lookup(&remote, repo, "origin");
+    err = git_remote_lookup(&remote, repo, remote_name);
     if (err < 0)
         goto cleanup;
 
@@ -419,7 +447,7 @@ int gj_git_push(const char *git_base_path)
 
     git_push_options options = GIT_PUSH_OPTIONS_INIT;
 
-    gj_credentials_payload gj_payload = {true};
+    gj_credentials_payload gj_payload = {true, 0, g_use_ssh};
     options.callbacks.payload = (void *)&gj_payload;
     options.callbacks.credentials = credentials_cb;
 
@@ -523,11 +551,48 @@ cleanup:
     git_odb_free(odb);
 }
 
-int gj_git_pull(const char *git_base_path, const char *author_name, const char *author_email)
+int gj_git_fetch(const char *git_base_path, const char *remote_name)
 {
     int err = 0;
     git_repository *repo = NULL;
     git_remote *remote = NULL;
+
+    err = git_repository_open(&repo, git_base_path);
+    if (err < 0)
+        goto cleanup;
+
+    git_repository_state_t state = git_repository_state(repo);
+    if (state != GIT_REPOSITORY_STATE_NONE)
+    {
+        err = GJ_ERR_PULL_INVALID_STATE;
+        goto cleanup;
+    }
+
+    err = git_remote_lookup(&remote, repo, remote_name);
+    if (err < 0)
+        goto cleanup;
+
+    git_fetch_options options = GIT_FETCH_OPTIONS_INIT;
+
+    gj_credentials_payload gj_payload = {true, 0, g_use_ssh};
+    options.callbacks.payload = (void *)&gj_payload;
+    options.callbacks.credentials = credentials_cb;
+
+    err = git_remote_fetch(remote, NULL, &options, NULL);
+    if (err < 0)
+        goto cleanup;
+
+cleanup:
+    git_remote_free(remote);
+    git_repository_free(repo);
+
+    return err;
+}
+
+int gj_git_merge(const char *git_base_path, const char *source_branch, const char *author_name, const char *author_email)
+{
+    int err = 0;
+    git_repository *repo = NULL;
     git_annotated_commit *origin_annotated_commit = NULL;
     git_reference *head_ref = NULL;
     git_reference *origin_head_ref = NULL;
@@ -552,25 +617,11 @@ int gj_git_pull(const char *git_base_path, const char *author_name, const char *
         goto cleanup;
     }
 
-    err = git_remote_lookup(&remote, repo, "origin");
-    if (err < 0)
-        goto cleanup;
-
-    git_fetch_options options = GIT_FETCH_OPTIONS_INIT;
-
-    gj_credentials_payload gj_payload = {true};
-    options.callbacks.payload = (void *)&gj_payload;
-    options.callbacks.credentials = credentials_cb;
-
-    err = git_remote_fetch(remote, NULL, &options, NULL);
-    if (err < 0)
-        goto cleanup;
-
     err = git_repository_head(&head_ref, repo);
     if (err < 0)
         goto cleanup;
 
-    err = git_branch_upstream(&origin_head_ref, head_ref);
+    err = git_branch_lookup(&origin_head_ref, repo, source_branch, GIT_BRANCH_REMOTE);
     if (err < 0)
         goto cleanup;
 
@@ -717,7 +768,6 @@ cleanup:
     git_reference_free(head_ref);
     git_reference_free(origin_head_ref);
     git_annotated_commit_free(origin_annotated_commit);
-    git_remote_free(remote);
     git_repository_free(repo);
     free(name);
 

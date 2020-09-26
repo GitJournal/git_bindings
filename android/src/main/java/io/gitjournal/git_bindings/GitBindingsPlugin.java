@@ -86,13 +86,18 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             AnyThreadResult anyResult = new AnyThreadResult(result);
             new GitCloneTask(anyResult).execute(cloneUrl, folderPath, publicKeyPath, privateKeyPath);
             return;
-        } else if (call.method.equals("gitPull")) {
+        } else if (call.method.equals("gitMerge")) {
             String folderPath = call.argument("folderPath");
+            String branch = call.argument("branch");
             String authorName = call.argument("authorName");
             String authorEmail = call.argument("authorEmail");
 
             if (folderPath == null || folderPath.isEmpty()) {
                 result.error("Invalid Parameters", "folderPath Invalid", null);
+                return;
+            }
+            if (branch == null || branch.isEmpty()) {
+                result.error("Invalid Parameters", "branch Invalid", null);
                 return;
             }
             if (authorName == null || authorName.isEmpty()) {
@@ -105,18 +110,39 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             }
 
             AnyThreadResult anyResult = new AnyThreadResult(result);
-            new GitPullTask(anyResult).execute(folderPath, publicKeyPath, privateKeyPath, authorName, authorEmail);
+            new GitMergeTask(anyResult).execute(folderPath, branch, authorName, authorEmail);
             return;
-        } else if (call.method.equals("gitPush")) {
+        } else if (call.method.equals("gitFetch")) {
             String folderPath = call.argument("folderPath");
+            String remote = call.argument("remote");
 
             if (folderPath == null || folderPath.isEmpty()) {
                 result.error("Invalid Parameters", "folderPath Invalid", null);
                 return;
             }
+            if (remote == null || remote.isEmpty()) {
+                result.error("Invalid Parameters", "remote Invalid", null);
+                return;
+            }
 
             AnyThreadResult anyResult = new AnyThreadResult(result);
-            new GitPushTask(anyResult).execute(folderPath, publicKeyPath, privateKeyPath);
+            new GitFetchTask(anyResult).execute(folderPath, publicKeyPath, privateKeyPath, remote);
+            return;
+        } else if (call.method.equals("gitPush")) {
+            String folderPath = call.argument("folderPath");
+            String remote = call.argument("remote");
+
+            if (folderPath == null || folderPath.isEmpty()) {
+                result.error("Invalid Parameters", "folderPath Invalid", null);
+                return;
+            }
+            if (remote == null || remote.isEmpty()) {
+                result.error("Invalid Parameters", "remote Invalid", null);
+                return;
+            }
+
+            AnyThreadResult anyResult = new AnyThreadResult(result);
+            new GitPushTask(anyResult).execute(folderPath, publicKeyPath, privateKeyPath, remote);
             return;
         } else if (call.method.equals("gitAdd")) {
             String folderPath = call.argument("folderPath");
