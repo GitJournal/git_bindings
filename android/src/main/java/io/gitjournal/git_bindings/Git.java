@@ -9,7 +9,6 @@ public class Git {
     // This needs to be called once!
     public native void setupLib();
 
-    public native String init(String basePath);
     public native String clone(String cloneUrl, String basePath);
 
     public native String merge(String basePath, String branch, String authorName, String authorEmail);

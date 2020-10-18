@@ -48,20 +48,6 @@ Java_io_gitjournal_git_1bindings_Git_setupLib(
 }
 
 JNIEXPORT jstring JNICALL
-Java_io_gitjournal_git_1bindings_Git_init(
-    JNIEnv *env,
-    jobject this_obj,
-    jstring jni_git_base_path)
-{
-    UNUSED(this_obj);
-
-    const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
-
-    int err = gj_git_init(git_base_path);
-    return handle_error(env, err);
-}
-
-JNIEXPORT jstring JNICALL
 Java_io_gitjournal_git_1bindings_Git_clone(
     JNIEnv *env,
     jobject this_obj,

@@ -122,25 +122,6 @@ cleanup:
     return err;
 }
 
-int gj_git_init(const char *git_base_path)
-{
-    int err = 0;
-    git_repository *repo = NULL;
-
-    git_repository_init_options initopts = GIT_REPOSITORY_INIT_OPTIONS_INIT;
-    initopts.flags = GIT_REPOSITORY_INIT_MKPATH;
-    initopts.workdir_path = git_base_path;
-
-    err = git_repository_init_ext(&repo, git_base_path, &initopts);
-    if (err < 0)
-        goto cleanup;
-
-cleanup:
-    git_repository_free(repo);
-
-    return 0;
-}
-
 int gj_git_reset_hard(const char *git_base_path, const char *ref)
 {
     int err = 0;

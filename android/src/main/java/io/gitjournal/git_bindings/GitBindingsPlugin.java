@@ -203,17 +203,6 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             AnyThreadResult anyResult = new AnyThreadResult(result);
             new GitCommitTask(anyResult).execute(folderPath, authorName, authorEmail, message, dateTimeStr);
             return;
-        } else if (call.method.equals("gitInit")) {
-            String folderPath = call.argument("folderPath");
-
-            if (folderPath == null || folderPath.isEmpty()) {
-                result.error("Invalid Parameters", "folderPath Invalid", null);
-                return;
-            }
-
-            AnyThreadResult anyResult = new AnyThreadResult(result);
-            new GitInitTask(anyResult).execute(folderPath);
-            return;
         } else if (call.method.equals("gitResetLast")) {
             String folderPath = call.argument("folderPath");
 

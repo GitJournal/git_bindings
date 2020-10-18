@@ -6,7 +6,6 @@
 int gj_init();
 int gj_shutdown();
 
-int gj_git_init(const char *git_base_path);
 int gj_git_clone(const char *clone_url, const char *git_base_path);
 
 int gj_git_merge(const char *git_base_path, const char *source_branch,
