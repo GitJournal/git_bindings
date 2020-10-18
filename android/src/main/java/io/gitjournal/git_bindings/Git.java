@@ -9,8 +9,6 @@ public class Git {
     // This needs to be called once!
     public native void setupLib();
 
-    public native String generateKeys(String privateKeyPath, String publicKeyPath, String comment);
-
     public native String init(String basePath);
     public native String clone(String cloneUrl, String basePath);
 

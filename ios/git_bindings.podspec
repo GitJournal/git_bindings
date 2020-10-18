@@ -13,7 +13,7 @@ A new flutter plugin project.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Vishesh Handa' => 'vhanda@gitjournal.io' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*', '../gj_common/gitjournal.c', '../gj_common/common.c', '../gj_common/keygen.c'
+  s.source_files = 'Classes/**/*', '../gj_common/gitjournal.c', '../gj_common/common.c'
   s.public_header_files = 'Classes/**/*.h', '../gj_common/gitjournal.h'
   s.dependency 'Flutter'
   s.platform = :ios, '8.0'
