@@ -6,13 +6,11 @@
 int gj_init();
 int gj_shutdown();
 
-int gj_git_clone(const char *clone_url, const char *git_base_path);
-
 int gj_git_merge(const char *git_base_path, const char *source_branch,
                  const char *author_name, const char *author_email);
 
-int gj_git_fetch(const char *git_base_path, const char *remote_name);
-int gj_git_push(const char *git_base_path, const char *remote_name);
+int gj_git_fetch(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode);
+int gj_git_push(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode);
 
 // commit_time_offset is in minutes
 int gj_git_commit(const char *git_base_path, const char *author_name,
@@ -20,9 +18,6 @@ int gj_git_commit(const char *git_base_path, const char *author_name,
 int gj_git_reset_hard(const char *git_base_path, const char *ref);
 int gj_git_add(const char *git_base_path, const char *pattern);
 int gj_git_rm(const char *git_base_path, const char *pattern);
-
-void gj_set_ssh_keys_paths(char *public_key, char *private_key, char *passcode);
-void gj_set_http_auth(char *username, char *password);
 
 typedef struct
 {

@@ -12,13 +12,13 @@ public class GitFetchTask extends AsyncTask<String, Void, Void> {
 
     protected Void doInBackground(String... params) {
         String cloneDirPath = params[0];
-        final String publicKeyPath = params[1];
-        final String privateKeyPath = params[2];
-        final String remote = params[3];
+        final String publicKey = params[1];
+        final String privateKey = params[2];
+        final String password = params[3];
+        final String remote = params[4];
 
         Git git = new Git();
-        git.setSshKeys(publicKeyPath, privateKeyPath, "");
-        String errorStr = git.fetch(cloneDirPath, remote);
+        String errorStr = git.fetch(cloneDirPath, remote, publicKey, privateKey, password);
         if (!errorStr.isEmpty()) {
             result.error("FAILED", errorStr, null);
             return null;

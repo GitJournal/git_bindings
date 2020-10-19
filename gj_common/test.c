@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     char *privatekey = "./.ssh/id_rsa";
     char *passphrase = "";
 
-    gj_set_ssh_keys_paths(publickey, privatekey, passphrase);
+    //gj_set_ssh_keys_paths(publickey, privatekey, passphrase);
 
     int err;
     char *git_base_path = "/tmp/test";
@@ -44,7 +44,6 @@ int main(int argc, char *argv[])
 
     //err = gj_generate_ssh_keys("/tmp/t/id_rsa", "/tmp/t/id_rsa.pub", "Cookie");
     //err = gj_git_commit(git_base_path, author_name, author_email, message);
-    //err = gj_git_clone(clone_url, git_base_path);
     err = gj_git_push(git_base_path, "origin");
     //err = gj_git_fetch(git_base_path, "origin");
     //err = gj_git_merge(git_base_path, "origin/master", author_name, author_email);

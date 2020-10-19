@@ -48,32 +48,24 @@ Java_io_gitjournal_git_1bindings_Git_setupLib(
 }
 
 JNIEXPORT jstring JNICALL
-Java_io_gitjournal_git_1bindings_Git_clone(
-    JNIEnv *env,
-    jobject this_obj,
-    jstring jni_clone_url,
-    jstring jni_git_base_path)
-{
-    UNUSED(this_obj);
-    const char *clone_url = (*env)->GetStringUTFChars(env, jni_clone_url, 0);
-    const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
-
-    int err = gj_git_clone(clone_url, git_base_path);
-    return handle_error(env, err);
-}
-
-JNIEXPORT jstring JNICALL
 Java_io_gitjournal_git_1bindings_Git_fetch(
     JNIEnv *env,
     jobject this_obj,
     jstring jni_git_base_path,
-    jstring jni_remote_name)
+    jstring jni_remote_name,
+    jstring jni_public_key,
+    jstring jni_private_key,
+    jstring jni_passphrase)
 {
     UNUSED(this_obj);
     const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
     const char *remote_name = (*env)->GetStringUTFChars(env, jni_remote_name, 0);
 
-    int err = gj_git_fetch(git_base_path, remote_name);
+    const char *public_key = (*env)->GetStringUTFChars(env, jni_public_key, 0);
+    const char *private_key = (*env)->GetStringUTFChars(env, jni_private_key, 0);
+    const char *passphrase = (*env)->GetStringUTFChars(env, jni_passphrase, 0);
+
+    int err = gj_git_fetch(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase);
     return handle_error(env, err);
 }
 
@@ -101,13 +93,20 @@ Java_io_gitjournal_git_1bindings_Git_push(
     JNIEnv *env,
     jobject this_obj,
     jstring jni_git_base_path,
-    jstring jni_remote_name)
+    jstring jni_remote_name,
+    jstring jni_public_key,
+    jstring jni_private_key,
+    jstring jni_passphrase)
 {
     UNUSED(this_obj);
     const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
     const char *remote_name = (*env)->GetStringUTFChars(env, jni_remote_name, 0);
 
-    int err = gj_git_push(git_base_path, remote_name);
+    const char *public_key = (*env)->GetStringUTFChars(env, jni_public_key, 0);
+    const char *private_key = (*env)->GetStringUTFChars(env, jni_private_key, 0);
+    const char *passphrase = (*env)->GetStringUTFChars(env, jni_passphrase, 0);
+
+    int err = gj_git_push(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase);
     return handle_error(env, err);
 }
 
@@ -175,21 +174,4 @@ Java_io_gitjournal_git_1bindings_Git_rm(
 
     int err = gj_git_rm(git_base_path, pattern);
     return handle_error(env, err);
-}
-
-JNIEXPORT void JNICALL
-Java_io_gitjournal_git_1bindings_Git_setSshKeys(
-    JNIEnv *env,
-    jobject this_obj,
-    jstring jni_public_key_path,
-    jstring jni_private_key_path,
-    jstring jni_passphrase)
-{
-    UNUSED(this_obj);
-
-    const char *public_key_path = (*env)->GetStringUTFChars(env, jni_public_key_path, 0);
-    const char *private_key_path = (*env)->GetStringUTFChars(env, jni_private_key_path, 0);
-    const char *passphrase = (*env)->GetStringUTFChars(env, jni_passphrase, 0);
-
-    gj_set_ssh_keys_paths((char *)public_key_path, (char *)private_key_path, (char *)passphrase);
 }

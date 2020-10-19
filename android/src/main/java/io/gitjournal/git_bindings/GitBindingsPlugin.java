@@ -53,9 +53,6 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         final String filesDir = PathUtils.getFilesDir(context);
-        final String sshKeysLocation = filesDir + "/ssh";
-        final String privateKeyPath = sshKeysLocation + "/id_rsa";
-        final String publicKeyPath = sshKeysLocation + "/id_rsa.pub";
 
         Log.i("GitJournalAndroid", "Called method " + call.method);
         if (call.arguments instanceof Map) {
@@ -70,23 +67,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             }
         }
 
-        if (call.method.equals("gitClone")) {
-            String cloneUrl = call.argument("cloneUrl");
-            String folderPath = call.argument("folderPath");
-
-            if (cloneUrl == null || cloneUrl.isEmpty()) {
-                result.error("Invalid Parameters", "cloneUrl Invalid", null);
-                return;
-            }
-            if (folderPath == null || folderPath.isEmpty()) {
-                result.error("Invalid Parameters", "folderPath Invalid", null);
-                return;
-            }
-
-            AnyThreadResult anyResult = new AnyThreadResult(result);
-            new GitCloneTask(anyResult).execute(cloneUrl, folderPath, publicKeyPath, privateKeyPath);
-            return;
-        } else if (call.method.equals("gitMerge")) {
+        if (call.method.equals("gitMerge")) {
             String folderPath = call.argument("folderPath");
             String branch = call.argument("branch");
             String authorName = call.argument("authorName");
@@ -115,6 +96,24 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
         } else if (call.method.equals("gitFetch")) {
             String folderPath = call.argument("folderPath");
             String remote = call.argument("remote");
+            String privateKey = call.argument("privateKey");
+            String publicKey = call.argument("publicKey");
+            String password = call.argument("password");
+
+            if (privateKey == null || privateKey.isEmpty()) {
+                result.error("Invalid Parameters", "privateKey Invalid", null);
+                return;
+            }
+
+            if (publicKey == null || publicKey.isEmpty()) {
+                result.error("Invalid Parameters", "publicKey Invalid", null);
+                return;
+            }
+
+            if (password == null) {
+                result.error("Invalid Parameters", "password Invalid", null);
+                return;
+            }
 
             if (folderPath == null || folderPath.isEmpty()) {
                 result.error("Invalid Parameters", "folderPath Invalid", null);
@@ -126,11 +125,29 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             }
 
             AnyThreadResult anyResult = new AnyThreadResult(result);
-            new GitFetchTask(anyResult).execute(folderPath, publicKeyPath, privateKeyPath, remote);
+            new GitFetchTask(anyResult).execute(folderPath, publicKey, privateKey, password, remote);
             return;
         } else if (call.method.equals("gitPush")) {
             String folderPath = call.argument("folderPath");
             String remote = call.argument("remote");
+            String privateKey = call.argument("privateKey");
+            String publicKey = call.argument("publicKey");
+            String password = call.argument("password");
+
+            if (privateKey == null || privateKey.isEmpty()) {
+                result.error("Invalid Parameters", "privateKey Invalid", null);
+                return;
+            }
+
+            if (publicKey == null || publicKey.isEmpty()) {
+                result.error("Invalid Parameters", "publicKey Invalid", null);
+                return;
+            }
+
+            if (password == null) {
+                result.error("Invalid Parameters", "password Invalid", null);
+                return;
+            }
 
             if (folderPath == null || folderPath.isEmpty()) {
                 result.error("Invalid Parameters", "folderPath Invalid", null);
@@ -142,7 +159,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             }
 
             AnyThreadResult anyResult = new AnyThreadResult(result);
-            new GitPushTask(anyResult).execute(folderPath, publicKeyPath, privateKeyPath, remote);
+            new GitPushTask(anyResult).execute(folderPath, publicKey, privateKey, password, remote);
             return;
         } else if (call.method.equals("gitAdd")) {
             String folderPath = call.argument("folderPath");
@@ -213,43 +230,6 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
 
             AnyThreadResult anyResult = new AnyThreadResult(result);
             new GitResetLastTask(anyResult).execute(folderPath);
-            return;
-        } else if (call.method.equals("getSSHPublicKey")) {
-            String publicKey = "";
-            try {
-                publicKey = FileUtils.readFileToString(new File(publicKeyPath), Charset.defaultCharset());
-            } catch (IOException ex) {
-                Log.d("getSSHPublicKey", ex.toString());
-                result.error("FAILED", "Failed to read the public key: " + ex.toString(), null);
-                return;
-            }
-
-            result.success(publicKey);
-            return;
-        } else if (call.method.equals("setSshKeys")) {
-            String privateKey = call.argument("privateKey");
-            String publicKey = call.argument("publicKey");
-
-            if (privateKey == null || privateKey.isEmpty()) {
-                result.error("Invalid Parameters", "privateKey Invalid", null);
-                return;
-            }
-
-            if (publicKey == null || publicKey.isEmpty()) {
-                result.error("Invalid Parameters", "publicKey Invalid", null);
-                return;
-            }
-
-            try {
-                FileUtils.writeStringToFile(new File(publicKeyPath), publicKey, Charset.defaultCharset());
-                FileUtils.writeStringToFile(new File(privateKeyPath), privateKey, Charset.defaultCharset());
-            } catch (IOException ex) {
-                Log.d("setSshKeys", ex.toString());
-                result.error("FAILED", "Failed to write the ssh keys", null);
-                return;
-            }
-
-            result.success(publicKey);
             return;
         }
 

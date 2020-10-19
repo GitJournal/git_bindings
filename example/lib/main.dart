@@ -31,11 +31,6 @@ class _GitAppState extends State<GitApp> {
     super.initState();
 
     cloneUrlController = TextEditingController(text: cloneUrl);
-    getSSHPublicKey().then((val) {
-      setState(() {
-        publicKey = val;
-      });
-    });
 
     getApplicationSupportDirectory().then((dir) async {
       var repoPath = p.join(dir.path, gitFolderName);
@@ -100,23 +95,16 @@ class _GitAppState extends State<GitApp> {
       ..showSnackBar(SnackBar(content: Text(text)));
   }
 
+  /*
   void _sendError(String text) {
     _scaffoldKey.currentState
       ..removeCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text("ERROR: " + text)));
   }
+  */
 
   List<Widget> _buildGitButtons() {
     return <Widget>[
-      RaisedButton(
-        child: const Text("Generate Keys"),
-        onPressed: () async {
-          var key = await generateSSHKeys(comment: "Git Sample App");
-          setState(() {
-            publicKey = key;
-          });
-        },
-      ),
       RaisedButton(
         child: const Text("Copy Key to Clipboard"),
         onPressed: () async {
@@ -125,21 +113,9 @@ class _GitAppState extends State<GitApp> {
         },
       ),
       RaisedButton(
-        child: const Text("Git Clone"),
-        onPressed: () async {
-          try {
-            await GitRepo.clone(gitRepo.folderPath, cloneUrl);
-            _sendSuccess();
-          } on GitException catch (ex) {
-            print(ex);
-            _sendError(ex.toString());
-          }
-        },
-      ),
-      RaisedButton(
         child: const Text("Git Pull"),
         onPressed: () async {
-          await gitRepo.fetch("origin");
+          //await gitRepo.fetch("origin");
           await gitRepo.merge(
             branch: "origin/master",
             authorName: "Vishesh Handa",
@@ -156,7 +132,7 @@ class _GitAppState extends State<GitApp> {
       RaisedButton(
         child: const Text("Git Push"),
         onPressed: () async {
-          gitRepo.push("origin");
+          //gitRepo.push("origin");
         },
       ),
       RaisedButton(

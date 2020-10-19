@@ -20,32 +20,19 @@ class GitRepo {
     @required this.folderPath,
   });
 
-  static Future<void> clone(String folderPath, String cloneUrl) async {
-    try {
-      await invokePlatformMethod('gitClone', {
-        'cloneUrl': cloneUrl,
-        'folderPath': folderPath,
-      });
-    } on PlatformException catch (e) {
-      throw createGitException(e.message);
-    }
-  }
-
-  static Future<void> init(String folderPath) async {
-    try {
-      await invokePlatformMethod('gitInit', {
-        'folderPath': folderPath,
-      });
-    } on PlatformException catch (e) {
-      throw createGitException(e.message);
-    }
-  }
-
-  Future<void> fetch(String remote) async {
+  Future<void> fetch({
+    @required String remote,
+    @required String publicKey,
+    @required String privateKey,
+    @required String password,
+  }) async {
     try {
       await invokePlatformMethod('gitFetch', {
         'folderPath': folderPath,
         'remote': remote,
+        'publicKey': publicKey,
+        'privateKey': privateKey,
+        'password': password,
       });
     } on PlatformException catch (e) {
       throw createGitException(e.message);
@@ -91,11 +78,19 @@ class GitRepo {
     }
   }
 
-  Future<void> push(String remote) async {
+  Future<void> push({
+    @required String remote,
+    @required String publicKey,
+    @required String privateKey,
+    @required String password,
+  }) async {
     try {
       await invokePlatformMethod('gitPush', {
         'folderPath': folderPath,
         'remote': remote,
+        'publicKey': publicKey,
+        'privateKey': privateKey,
+        'password': password,
       });
     } on PlatformException catch (e) {
       throw createGitException(e.message);
@@ -133,27 +128,6 @@ class GitRepo {
       throw createGitException(e.message);
     }
   }
-}
-
-Future<String> generateSSHKeys({@required String comment}) async {
-  String publicKey = await invokePlatformMethod('generateSSHKeys', {
-    'comment': comment,
-  });
-  return publicKey;
-}
-
-Future<void> setSshKeys({
-  @required String publicKey,
-  @required String privateKey,
-}) async {
-  await invokePlatformMethod('setSshKeys', {
-    'publicKey': publicKey,
-    'privateKey': privateKey,
-  });
-}
-
-Future<String> getSSHPublicKey() async {
-  return await invokePlatformMethod('getSSHPublicKey');
 }
 
 class GitException implements Exception {
