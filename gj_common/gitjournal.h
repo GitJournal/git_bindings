@@ -9,8 +9,8 @@ int gj_shutdown();
 int gj_git_merge(const char *git_base_path, const char *source_branch,
                  const char *author_name, const char *author_email);
 
-int gj_git_fetch(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode);
-int gj_git_push(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode);
+int gj_git_fetch(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory);
+int gj_git_push(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory);
 
 // commit_time_offset is in minutes
 int gj_git_commit(const char *git_base_path, const char *author_name,

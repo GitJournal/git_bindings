@@ -314,6 +314,7 @@ typedef struct
 {
     bool first_time;
     int error_code;
+    bool ssh_in_memory;
 } gj_credentials_payload;
 
 bool file_exists(char *filename)
@@ -346,23 +347,46 @@ int credentials_cb(git_cred **out, const char *url, const char *username_from_ur
         return -1;
     }
 
-    if (strlen(g_public_key_path) == 0)
+    if (gj_payload->ssh_in_memory)
     {
-        gj_payload->error_code = GJ_ERR_MISSING_PUBLIC_KEY;
-        gj_log_internal("Public Key is empty\n");
-        return GJ_ERR_MISSING_PUBLIC_KEY;
-    }
+        if (strlen(g_public_key) == 0)
+        {
+            gj_payload->error_code = GJ_ERR_MISSING_PUBLIC_KEY;
+            gj_log_internal("Public Key is empty\n");
+            return GJ_ERR_MISSING_PUBLIC_KEY;
+        }
 
-    if (strlen(g_private_key_path) == 0)
+        if (strlen(g_private_key) == 0)
+        {
+            gj_payload->error_code = GJ_ERR_MISSING_PRIVATE_KEY;
+            gj_log_internal("Private Key is empty\n");
+            return GJ_ERR_MISSING_PRIVATE_KEY;
+        }
+
+        gj_payload->first_time = false;
+        return git_cred_ssh_key_memory_new(out, username_from_url,
+                                           g_public_key, g_private_key, g_passcode);
+    }
+    else
     {
-        gj_payload->error_code = GJ_ERR_MISSING_PRIVATE_KEY;
-        gj_log_internal("Private Key is empty\n");
-        return GJ_ERR_MISSING_PRIVATE_KEY;
-    }
+        if (strlen(g_public_key_path) == 0)
+        {
+            gj_payload->error_code = GJ_ERR_MISSING_PUBLIC_KEY;
+            gj_log_internal("Public Key is empty\n");
+            return GJ_ERR_MISSING_PUBLIC_KEY;
+        }
 
-    gj_payload->first_time = false;
-    return git_cred_ssh_key_new(out, username_from_url,
-                                g_public_key_path, g_private_key_path, g_passcode);
+        if (strlen(g_private_key_path) == 0)
+        {
+            gj_payload->error_code = GJ_ERR_MISSING_PRIVATE_KEY;
+            gj_log_internal("Private Key is empty\n");
+            return GJ_ERR_MISSING_PRIVATE_KEY;
+        }
+
+        gj_payload->first_time = false;
+        return git_cred_ssh_key_new(out, username_from_url,
+                                    g_public_key_path, g_private_key_path, g_passcode);
+    }
 }
 
 int certificate_check_cb(git_cert *cert, int valid, const char *host, void *payload)
@@ -391,13 +415,16 @@ int certificate_check_cb(git_cert *cert, int valid, const char *host, void *payl
     return 0;
 }
 
-int gj_git_push(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode)
+int gj_git_push(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory)
 {
     g_public_key = public_key;
     g_private_key = private_key;
     g_passcode = passcode;
 
-    write_keys_to_file((char *)git_base_path);
+    if (!ssh_in_memory)
+    {
+        write_keys_to_file((char *)git_base_path);
+    }
 
     int err = 0;
     git_repository *repo = NULL;
@@ -431,7 +458,7 @@ int gj_git_push(const char *git_base_path, const char *remote_name, char *public
 
     git_push_options options = GIT_PUSH_OPTIONS_INIT;
 
-    gj_credentials_payload gj_payload = {true, 0};
+    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory};
     options.callbacks.payload = (void *)&gj_payload;
     options.callbacks.credentials = credentials_cb;
 
@@ -535,13 +562,16 @@ cleanup:
     git_odb_free(odb);
 }
 
-int gj_git_fetch(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode)
+int gj_git_fetch(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory)
 {
     g_public_key = public_key;
     g_private_key = private_key;
     g_passcode = passcode;
 
-    write_keys_to_file((char *)git_base_path);
+    if (!ssh_in_memory)
+    {
+        write_keys_to_file((char *)git_base_path);
+    }
 
     int err = 0;
     git_repository *repo = NULL;
@@ -564,7 +594,7 @@ int gj_git_fetch(const char *git_base_path, const char *remote_name, char *publi
 
     git_fetch_options options = GIT_FETCH_OPTIONS_INIT;
 
-    gj_credentials_payload gj_payload = {true, 0};
+    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory};
     options.callbacks.payload = (void *)&gj_payload;
     options.callbacks.credentials = credentials_cb;
 

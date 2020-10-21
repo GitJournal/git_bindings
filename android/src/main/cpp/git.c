@@ -65,7 +65,7 @@ Java_io_gitjournal_git_1bindings_Git_fetch(
     const char *private_key = (*env)->GetStringUTFChars(env, jni_private_key, 0);
     const char *passphrase = (*env)->GetStringUTFChars(env, jni_passphrase, 0);
 
-    int err = gj_git_fetch(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase);
+    int err = gj_git_fetch(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase, false);
     return handle_error(env, err);
 }
 
@@ -106,7 +106,7 @@ Java_io_gitjournal_git_1bindings_Git_push(
     const char *private_key = (*env)->GetStringUTFChars(env, jni_private_key, 0);
     const char *passphrase = (*env)->GetStringUTFChars(env, jni_passphrase, 0);
 
-    int err = gj_git_push(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase);
+    int err = gj_git_push(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase, false);
     return handle_error(env, err);
 }
 
