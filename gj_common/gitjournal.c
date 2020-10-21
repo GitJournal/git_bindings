@@ -272,7 +272,7 @@ int write_to_path(char *path, char *value)
         return -1;
     }
 
-    fprintf(fptr, "%s", value);
+    fprintf(fptr, "%s\n", value);
     fclose(fptr);
     return 0;
 }
