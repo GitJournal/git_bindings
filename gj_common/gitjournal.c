@@ -256,10 +256,59 @@ int fetch_progress(const git_transfer_progress *stats, void *payload)
 
 char *g_public_key = NULL;
 char *g_private_key = NULL;
+char *g_public_key_path = NULL;
+char *g_private_key_path = NULL;
 char *g_passcode = NULL;
 
 char *g_http_username = NULL;
 char *g_http_password = NULL;
+
+int write_to_path(char *path, char *value)
+{
+    FILE *fptr = fopen(path, "w");
+
+    if (fptr == NULL)
+    {
+        return -1;
+    }
+
+    fprintf(fptr, "%s", value);
+    fclose(fptr);
+    return 0;
+}
+
+char *build_path(char *base_url, char *filename)
+{
+    char *str = malloc(strlen(base_url) + strlen(filename) + 10);
+    strcpy(str, base_url);
+    strcat(str, "/../../");
+    strcat(str, filename);
+
+    return str;
+}
+
+void write_keys_to_file(char *base_url)
+{
+    if (g_public_key_path != NULL)
+    {
+        free(g_public_key_path);
+        g_public_key_path = NULL;
+    }
+    if (g_private_key_path != NULL)
+    {
+        free(g_private_key_path);
+        g_private_key_path = NULL;
+    }
+
+    g_private_key_path = build_path(base_url, "id_rsa");
+    g_public_key_path = build_path(base_url, "id_rsa.pub");
+
+    gj_log_internal("Public Key Path: %s\n", g_public_key_path);
+    gj_log_internal("Private Key Path: %s\n", g_private_key_path);
+
+    write_to_path(g_public_key_path, g_public_key);
+    write_to_path(g_private_key_path, g_private_key);
+}
 
 typedef struct
 {
@@ -297,22 +346,23 @@ int credentials_cb(git_cred **out, const char *url, const char *username_from_ur
         return -1;
     }
 
-        if (strlen(g_public_key) == 0) {
-            gj_payload->error_code = GJ_ERR_MISSING_PUBLIC_KEY;
-            gj_log_internal("Public Key is empty\n");
-            return GJ_ERR_MISSING_PUBLIC_KEY;
-        }
+    if (strlen(g_public_key_path) == 0)
+    {
+        gj_payload->error_code = GJ_ERR_MISSING_PUBLIC_KEY;
+        gj_log_internal("Public Key is empty\n");
+        return GJ_ERR_MISSING_PUBLIC_KEY;
+    }
 
-        if (strlen(g_private_key) == 0) {
-            gj_payload->error_code = GJ_ERR_MISSING_PRIVATE_KEY;
-            gj_log_internal("Private Key is empty\n");
-            return GJ_ERR_MISSING_PRIVATE_KEY;
+    if (strlen(g_private_key_path) == 0)
+    {
+        gj_payload->error_code = GJ_ERR_MISSING_PRIVATE_KEY;
+        gj_log_internal("Private Key is empty\n");
+        return GJ_ERR_MISSING_PRIVATE_KEY;
+    }
 
-        }
-
-        gj_payload->first_time = false;
-        return git_cred_ssh_key_memory_new(out, username_from_url,
-                                    g_public_key, g_private_key, g_passcode);
+    gj_payload->first_time = false;
+    return git_cred_ssh_key_new(out, username_from_url,
+                                g_public_key_path, g_private_key_path, g_passcode);
 }
 
 int certificate_check_cb(git_cert *cert, int valid, const char *host, void *payload)
@@ -346,6 +396,8 @@ int gj_git_push(const char *git_base_path, const char *remote_name, char *public
     g_public_key = public_key;
     g_private_key = private_key;
     g_passcode = passcode;
+
+    write_keys_to_file((char *)git_base_path);
 
     int err = 0;
     git_repository *repo = NULL;
@@ -488,6 +540,8 @@ int gj_git_fetch(const char *git_base_path, const char *remote_name, char *publi
     g_public_key = public_key;
     g_private_key = private_key;
     g_passcode = passcode;
+
+    write_keys_to_file((char *)git_base_path);
 
     int err = 0;
     git_repository *repo = NULL;
