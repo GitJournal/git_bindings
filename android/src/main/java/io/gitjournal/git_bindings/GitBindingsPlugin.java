@@ -63,7 +63,12 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
                 if (val != null) {
                     objVal = val.toString();
                 }
-                Log.i("GitJournalAndroid", ".  " + entry.getKey() + ": " + val);
+
+                String key = entry.getKey();
+                if (key.equals("publicKey") || key.equals("privateKey") || key.equals("password")) {
+                    objVal = "<hidden>";
+                }
+                Log.i("GitJournalAndroid", ".  " + key + ": " + objVal);
             }
         }
 
