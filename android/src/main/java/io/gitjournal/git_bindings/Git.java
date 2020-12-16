@@ -12,6 +12,7 @@ public class Git {
     public native String merge(String basePath, String branch, String authorName, String authorEmail);
     public native String fetch(String basePath, String remote, String publicKey, String privateKey, String password);
     public native String push(String basePath, String remote, String publicKey, String privateKey, String password);
+    public native String defaultBranch(String basePath, String remote, String publicKey, String privateKey, String password);
 
     public native String commit(String basePath, String authorName, String authorEmail, String message);
     public native String resetHard(String basePath, String ref);

@@ -97,6 +97,29 @@ class GitRepo {
     }
   }
 
+  Future<String> defaultBranch({
+    @required String remote,
+    @required String publicKey,
+    @required String privateKey,
+    @required String password,
+  }) async {
+    try {
+      String br = await invokePlatformMethod('gitDefaultBranch', {
+        'folderPath': folderPath,
+        'remote': remote,
+        'publicKey': publicKey,
+        'privateKey': privateKey,
+        'password': password,
+      });
+      if (br != null && br.startsWith('refs/heads/')) {
+        br = br.substring(11);
+      }
+      return br;
+    } on PlatformException catch (e) {
+      throw createGitException(e.message);
+    }
+  }
+
   // FIXME: Change this method to just resetHard
   Future<void> resetLast() async {
     try {

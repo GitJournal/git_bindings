@@ -475,6 +475,60 @@ cleanup:
     return err;
 }
 
+int gj_git_default_branch(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory, char *default_branch)
+{
+    g_public_key = public_key;
+    g_private_key = private_key;
+    g_passcode = passcode;
+
+    if (!ssh_in_memory)
+    {
+        write_keys_to_file((char *)git_base_path);
+    }
+
+    int err = 0;
+    git_repository *repo = NULL;
+    git_remote *remote = NULL;
+    git_buf buf = {NULL};
+
+    err = git_repository_open(&repo, git_base_path);
+    if (err < 0)
+        goto cleanup;
+
+    err = git_remote_lookup(&remote, repo, remote_name);
+    if (err < 0)
+        goto cleanup;
+
+    git_remote_callbacks callbacks = GIT_REMOTE_CALLBACKS_INIT;
+
+    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory};
+    callbacks.payload = (void *)&gj_payload;
+    callbacks.credentials = credentials_cb;
+
+    err = git_remote_connect(remote, GIT_DIRECTION_FETCH, &callbacks, NULL, NULL);
+    if (err < 0)
+        goto cleanup;
+
+    err = git_remote_default_branch(&buf, remote);
+    if (err == GIT_ENOTFOUND)
+    {
+        default_branch[0] = 0;
+    }
+    else if (err < 0)
+        goto cleanup;
+    else
+    {
+        strncpy(default_branch, buf.ptr, buf.size);
+        gj_log_internal("git_remote_branch %s\n", default_branch);
+    }
+cleanup:
+    git_buf_dispose(&buf);
+    git_remote_free(remote);
+    git_repository_free(repo);
+
+    return err;
+}
+
 // Taken from merge.c libgit2 examples
 static int perform_fastforward(git_repository *repo, const git_oid *target_oid)
 {

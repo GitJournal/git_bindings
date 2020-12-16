@@ -166,6 +166,40 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             AnyThreadResult anyResult = new AnyThreadResult(result);
             new GitPushTask(anyResult).execute(folderPath, publicKey, privateKey, password, remote);
             return;
+        } else if (call.method.equals("gitDefaultBranch")) {
+            String folderPath = call.argument("folderPath");
+            String remote = call.argument("remote");
+            String privateKey = call.argument("privateKey");
+            String publicKey = call.argument("publicKey");
+            String password = call.argument("password");
+
+            if (privateKey == null || privateKey.isEmpty()) {
+                result.error("Invalid Parameters", "privateKey Invalid", null);
+                return;
+            }
+
+            if (publicKey == null || publicKey.isEmpty()) {
+                result.error("Invalid Parameters", "publicKey Invalid", null);
+                return;
+            }
+
+            if (password == null) {
+                result.error("Invalid Parameters", "password Invalid", null);
+                return;
+            }
+
+            if (folderPath == null || folderPath.isEmpty()) {
+                result.error("Invalid Parameters", "folderPath Invalid", null);
+                return;
+            }
+            if (remote == null || remote.isEmpty()) {
+                result.error("Invalid Parameters", "remote Invalid", null);
+                return;
+            }
+
+            AnyThreadResult anyResult = new AnyThreadResult(result);
+            new GitDefaultBranchTask(anyResult).execute(folderPath, publicKey, privateKey, password, remote);
+            return;
         } else if (call.method.equals("gitAdd")) {
             String folderPath = call.argument("folderPath");
             String filePattern = call.argument("filePattern");

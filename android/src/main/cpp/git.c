@@ -111,6 +111,40 @@ Java_io_gitjournal_git_1bindings_Git_push(
 }
 
 JNIEXPORT jstring JNICALL
+Java_io_gitjournal_git_1bindings_Git_defaultBranch(
+    JNIEnv *env,
+    jobject this_obj,
+    jstring jni_git_base_path,
+    jstring jni_remote_name,
+    jstring jni_public_key,
+    jstring jni_private_key,
+    jstring jni_passphrase)
+{
+    UNUSED(this_obj);
+    const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
+    const char *remote_name = (*env)->GetStringUTFChars(env, jni_remote_name, 0);
+
+    const char *public_key = (*env)->GetStringUTFChars(env, jni_public_key, 0);
+    const char *private_key = (*env)->GetStringUTFChars(env, jni_private_key, 0);
+    const char *passphrase = (*env)->GetStringUTFChars(env, jni_passphrase, 0);
+
+    char branch_name[1024];
+    memset(branch_name, 0, 1024);
+    int err = gj_git_default_branch(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase, false, (char *)branch_name);
+    if (err == 0)
+    {
+        char return_val[1024 + 3];
+        memset(return_val, 0, 1024 + 3);
+
+        strcat(return_val, "gj:");
+        strcat(return_val, branch_name);
+        return (*env)->NewStringUTF(env, return_val);
+    }
+
+    return handle_error(env, err);
+}
+
+JNIEXPORT jstring JNICALL
 Java_io_gitjournal_git_1bindings_Git_commit(
     JNIEnv *env,
     jobject this_obj,
