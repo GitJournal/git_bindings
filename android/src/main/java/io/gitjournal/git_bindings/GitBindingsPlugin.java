@@ -270,6 +270,28 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             AnyThreadResult anyResult = new AnyThreadResult(result);
             new GitResetLastTask(anyResult).execute(folderPath);
             return;
+        } else if (call.method.equals("generateSSHKeys")) {
+            String comment = call.argument("comment");
+            if (comment == null || comment.isEmpty()) {
+                Log.d("generateSSHKeys", "Defaulting to default comment");
+                comment = "Generated on Android";
+            }
+
+            String privateKeyPath = call.argument("privateKeyPath");
+            if (privateKeyPath == null || privateKeyPath.isEmpty()) {
+                result.error("Invalid Parameters", "privateKeyPath Invalid", null);
+                return;
+            }
+
+            String publicKeyPath = call.argument("publicKeyPath");
+            if (publicKeyPath == null || publicKeyPath.isEmpty()) {
+                result.error("Invalid Parameters", "publicKeyPath Invalid", null);
+                return;
+            }
+
+            AnyThreadResult anyResult = new AnyThreadResult(result);
+            new GenerateSSHKeysTask(anyResult).execute(publicKeyPath, privateKeyPath, comment);
+            return;
         }
 
         result.notImplemented();

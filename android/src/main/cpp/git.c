@@ -209,3 +209,21 @@ Java_io_gitjournal_git_1bindings_Git_rm(
     int err = gj_git_rm(git_base_path, pattern);
     return handle_error(env, err);
 }
+
+JNIEXPORT jstring JNICALL
+Java_io_gitjournal_git_1bindings_Git_generateKeys(
+    JNIEnv *env,
+    jobject this_obj,
+    jstring jni_private_key_path,
+    jstring jni_public_key_path,
+    jstring jni_comment)
+{
+    UNUSED(this_obj);
+
+    const char *private_key_path = (*env)->GetStringUTFChars(env, jni_private_key_path, 0);
+    const char *public_key_path = (*env)->GetStringUTFChars(env, jni_public_key_path, 0);
+    const char *comment = (*env)->GetStringUTFChars(env, jni_comment, 0);
+
+    int err = gj_generate_ssh_keys(private_key_path, public_key_path, comment);
+    return handle_error(env, err);
+}

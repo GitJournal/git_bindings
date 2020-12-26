@@ -9,6 +9,8 @@ public class Git {
     // This needs to be called once!
     public native void setupLib();
 
+    public native String generateKeys(String privateKeyPath, String publicKeyPath, String comment);
+
     public native String merge(String basePath, String branch, String authorName, String authorEmail);
     public native String fetch(String basePath, String remote, String publicKey, String privateKey, String password);
     public native String push(String basePath, String remote, String publicKey, String privateKey, String password);
