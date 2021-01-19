@@ -196,14 +196,14 @@ GitException createGitException(String msg) {
   return GitException(msg);
 }
 
-Future<String> generateSSHKeys(
-    {@required String privateKeyPath,
-    @required String publicKeyPath,
-    @required String comment}) async {
-  String publicKey = await invokePlatformMethod('generateSSHKeys', {
+Future<void> generateSSHKeys({
+  @required String privateKeyPath,
+  @required String publicKeyPath,
+  @required String comment,
+}) async {
+  await invokePlatformMethod('generateSSHKeys', {
     'privateKeyPath': privateKeyPath,
     'publicKeyPath': publicKeyPath,
     'comment': comment,
   });
-  return publicKey;
 }
