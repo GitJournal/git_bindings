@@ -145,6 +145,24 @@ Java_io_gitjournal_git_1bindings_Git_defaultBranch(
 }
 
 JNIEXPORT jstring JNICALL
+Java_io_gitjournal_git_1bindings_Git_clone(
+    JNIEnv *env,
+    jobject this_obj,
+    jstring jni_clone_url,
+    jstring jni_git_base_path,
+    jstring jni_public_key,
+    jstring jni_private_key,
+    jstring jni_passphrase)
+{
+    UNUSED(this_obj);
+    const char *clone_url = (*env)->GetStringUTFChars(env, jni_clone_url, 0);
+    const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
+
+    int err = gj_git_clone(clone_url, git_base_path, jni_public_key, jni_private_key, jni_passphrase, false);
+    return handle_error(env, err);
+}
+
+JNIEXPORT jstring JNICALL
 Java_io_gitjournal_git_1bindings_Git_commit(
     JNIEnv *env,
     jobject this_obj,

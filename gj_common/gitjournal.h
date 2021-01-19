@@ -12,6 +12,7 @@ int gj_git_merge(const char *git_base_path, const char *source_branch,
 int gj_git_fetch(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory);
 int gj_git_push(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory);
 int gj_git_default_branch(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory, char *default_branch);
+int gj_git_clone(const char *clone_url, const char *git_base_path, char *public_key, char *private_key, char *passcode, bool ssh_in_memory);
 
 // commit_time_offset is in minutes
 int gj_git_commit(const char *git_base_path, const char *author_name,

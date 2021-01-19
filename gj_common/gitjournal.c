@@ -663,6 +663,39 @@ cleanup:
     return err;
 }
 
+int gj_git_clone(const char *clone_url, const char *git_base_path, char *public_key, char *private_key, char *passcode, bool ssh_in_memory)
+{
+    g_public_key = public_key;
+    g_private_key = private_key;
+    g_passcode = passcode;
+
+    if (!ssh_in_memory)
+    {
+        write_keys_to_file((char *)git_base_path);
+    }
+
+    int err = 0;
+    git_repository *repo = NULL;
+    git_clone_options options = GIT_CLONE_OPTIONS_INIT;
+    options.fetch_opts.callbacks.transfer_progress = fetch_progress;
+    options.fetch_opts.callbacks.certificate_check = certificate_check_cb;
+
+    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory};
+    options.fetch_opts.callbacks.payload = (void *)&gj_payload;
+    options.fetch_opts.callbacks.credentials = credentials_cb;
+
+    err = git_clone(&repo, clone_url, git_base_path, &options);
+    if (err < 0)
+        goto cleanup;
+
+cleanup:
+    git_repository_free(repo);
+
+    if (gj_payload.error_code != 0)
+        return gj_payload.error_code;
+    return err;
+}
+
 int gj_git_merge(const char *git_base_path, const char *source_branch, const char *author_name, const char *author_email)
 {
     int err = 0;

@@ -98,6 +98,40 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             AnyThreadResult anyResult = new AnyThreadResult(result);
             new GitMergeTask(anyResult).execute(folderPath, branch, authorName, authorEmail);
             return;
+        } else if (call.method.equals("gitClone")) {
+            String folderPath = call.argument("folderPath");
+            String cloneUrl = call.argument("cloneUrl");
+            String privateKey = call.argument("privateKey");
+            String publicKey = call.argument("publicKey");
+            String password = call.argument("password");
+
+            if (privateKey == null || privateKey.isEmpty()) {
+                result.error("Invalid Parameters", "privateKey Invalid", null);
+                return;
+            }
+
+            if (publicKey == null || publicKey.isEmpty()) {
+                result.error("Invalid Parameters", "publicKey Invalid", null);
+                return;
+            }
+
+            if (password == null) {
+                result.error("Invalid Parameters", "password Invalid", null);
+                return;
+            }
+
+            if (folderPath == null || folderPath.isEmpty()) {
+                result.error("Invalid Parameters", "folderPath Invalid", null);
+                return;
+            }
+            if (cloneUrl == null || cloneUrl.isEmpty()) {
+                result.error("Invalid Parameters", "cloneUrl Invalid", null);
+                return;
+            }
+
+            AnyThreadResult anyResult = new AnyThreadResult(result);
+            new GitCloneTask(anyResult).execute(folderPath, cloneUrl, publicKey, privateKey, password);
+            return;
         } else if (call.method.equals("gitFetch")) {
             String folderPath = call.argument("folderPath");
             String remote = call.argument("remote");

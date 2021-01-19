@@ -97,6 +97,26 @@ class GitRepo {
     }
   }
 
+  static Future<void> clone({
+    @required String folderPath,
+    @required String cloneUrl,
+    @required String publicKey,
+    @required String privateKey,
+    @required String password,
+  }) async {
+    try {
+      await invokePlatformMethod('gitClone', {
+        'cloneUrl': cloneUrl,
+        'folderPath': folderPath,
+        'publicKey': publicKey,
+        'privateKey': privateKey,
+        'password': password,
+      });
+    } on PlatformException catch (e) {
+      throw createGitException(e.message);
+    }
+  }
+
   Future<String> defaultBranch({
     @required String remote,
     @required String publicKey,
