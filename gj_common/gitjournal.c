@@ -519,7 +519,8 @@ int gj_git_default_branch(const char *git_base_path, const char *remote_name, ch
     else
     {
         strncpy(default_branch, buf.ptr, buf.size);
-        gj_log_internal("git_remote_branch %s\n", default_branch);
+        default_branch[buf.size] = 0;
+        gj_log_internal("git_default_branch %s : %d\n", default_branch, buf.size);
     }
 cleanup:
     git_buf_dispose(&buf);
