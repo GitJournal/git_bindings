@@ -40,9 +40,9 @@ class GitRepo {
   }
 
   Future<void> merge({
-    String branch,
-    String authorName,
-    String authorEmail,
+    @required String branch,
+    @required String authorName,
+    @required String authorEmail,
   }) async {
     try {
       await invokePlatformMethod('gitMerge', {
