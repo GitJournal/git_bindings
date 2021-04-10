@@ -17,14 +17,14 @@ class GitRepo {
   final String folderPath;
 
   const GitRepo({
-    @required this.folderPath,
+    required this.folderPath,
   });
 
   Future<void> fetch({
-    @required String remote,
-    @required String publicKey,
-    @required String privateKey,
-    @required String password,
+    required String remote,
+    required String publicKey,
+    required String privateKey,
+    required String password,
   }) async {
     try {
       await invokePlatformMethod('gitFetch', {
@@ -35,14 +35,14 @@ class GitRepo {
         'password': password,
       });
     } on PlatformException catch (e) {
-      throw createGitException(e.message);
+      throw createGitException(e.message!);
     }
   }
 
   Future<void> merge({
-    @required String branch,
-    @required String authorName,
-    @required String authorEmail,
+    required String branch,
+    required String authorName,
+    required String authorEmail,
   }) async {
     try {
       await invokePlatformMethod('gitMerge', {
@@ -52,7 +52,7 @@ class GitRepo {
         'authorEmail': authorEmail,
       });
     } on PlatformException catch (e) {
-      throw createGitException(e.message);
+      throw createGitException(e.message!);
     }
   }
 
@@ -63,7 +63,7 @@ class GitRepo {
         'filePattern': filePattern,
       });
     } on PlatformException catch (e) {
-      throw createGitException(e.message);
+      throw createGitException(e.message!);
     }
   }
 
@@ -74,15 +74,15 @@ class GitRepo {
         'filePattern': filePattern,
       });
     } on PlatformException catch (e) {
-      throw createGitException(e.message);
+      throw createGitException(e.message!);
     }
   }
 
   Future<void> push({
-    @required String remote,
-    @required String publicKey,
-    @required String privateKey,
-    @required String password,
+    required String remote,
+    required String publicKey,
+    required String privateKey,
+    required String password,
   }) async {
     try {
       await invokePlatformMethod('gitPush', {
@@ -93,16 +93,16 @@ class GitRepo {
         'password': password,
       });
     } on PlatformException catch (e) {
-      throw createGitException(e.message);
+      throw createGitException(e.message!);
     }
   }
 
   static Future<void> clone({
-    @required String folderPath,
-    @required String cloneUrl,
-    @required String publicKey,
-    @required String privateKey,
-    @required String password,
+    required String folderPath,
+    required String cloneUrl,
+    required String publicKey,
+    required String privateKey,
+    required String password,
   }) async {
     try {
       await invokePlatformMethod('gitClone', {
@@ -113,30 +113,30 @@ class GitRepo {
         'password': password,
       });
     } on PlatformException catch (e) {
-      throw createGitException(e.message);
+      throw createGitException(e.message!);
     }
   }
 
-  Future<String> defaultBranch({
-    @required String remote,
-    @required String publicKey,
-    @required String privateKey,
-    @required String password,
+  Future<String?> defaultBranch({
+    required String remote,
+    required String publicKey,
+    required String privateKey,
+    required String password,
   }) async {
     try {
-      String br = await invokePlatformMethod('gitDefaultBranch', {
+      String? br = await (invokePlatformMethod('gitDefaultBranch', {
         'folderPath': folderPath,
         'remote': remote,
         'publicKey': publicKey,
         'privateKey': privateKey,
         'password': password,
-      });
+      }) as FutureOr<String?>);
       if (br != null && br.startsWith('refs/heads/')) {
         br = br.substring(11);
       }
       return br;
     } on PlatformException catch (e) {
-      throw createGitException(e.message);
+      throw createGitException(e.message!);
     }
   }
 
@@ -147,17 +147,17 @@ class GitRepo {
         'folderPath': folderPath,
       });
     } on PlatformException catch (e) {
-      throw createGitException(e.message);
+      throw createGitException(e.message!);
     }
   }
 
   // FIXME: Change the datetime
   // FIXME: Actually implement the 'when'
   Future<void> commit({
-    @required String message,
-    @required String authorName,
-    @required String authorEmail,
-    String when,
+    required String message,
+    required String authorName,
+    required String authorEmail,
+    String? when,
   }) async {
     try {
       await invokePlatformMethod('gitCommit', {
@@ -168,7 +168,7 @@ class GitRepo {
         'when': when,
       });
     } on PlatformException catch (e) {
-      throw createGitException(e.message);
+      throw createGitException(e.message!);
     }
   }
 }
@@ -197,9 +197,9 @@ GitException createGitException(String msg) {
 }
 
 Future<void> generateSSHKeys({
-  @required String privateKeyPath,
-  @required String publicKeyPath,
-  @required String comment,
+  required String privateKeyPath,
+  required String publicKeyPath,
+  required String comment,
 }) async {
   await invokePlatformMethod('generateSSHKeys', {
     'privateKeyPath': privateKeyPath,
