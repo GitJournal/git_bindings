@@ -124,13 +124,14 @@ class GitRepo {
     required String password,
   }) async {
     try {
-      String? br = await (invokePlatformMethod('gitDefaultBranch', {
+      var ret = await invokePlatformMethod('gitDefaultBranch', {
         'folderPath': folderPath,
         'remote': remote,
         'publicKey': publicKey,
         'privateKey': privateKey,
         'password': password,
-      }) as FutureOr<String?>);
+      });
+      String? br = ret;
       if (br != null && br.startsWith('refs/heads/')) {
         br = br.substring(11);
       }
