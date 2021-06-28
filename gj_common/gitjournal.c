@@ -260,9 +260,6 @@ char *g_public_key_path = NULL;
 char *g_private_key_path = NULL;
 char *g_passcode = NULL;
 
-char *g_http_username = NULL;
-char *g_http_password = NULL;
-
 int write_to_path(char *path, char *value)
 {
     FILE *fptr = fopen(path, "w");
