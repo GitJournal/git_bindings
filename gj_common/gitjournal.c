@@ -265,7 +265,7 @@ int fetch_progress(const git_transfer_progress *stats, void *payload)
         {
             FILE *fp = fopen(gj_payload->status_file, "w");
             char str[180];
-            sprintf(str, "%d %d %d %d %d %d\n\0", stats->total_objects, stats->indexed_objects, stats->received_objects, stats->local_objects, stats->total_deltas, stats->indexed_deltas);
+            sprintf(str, "%d %d %d %d %d %d\n", stats->total_objects, stats->indexed_objects, stats->received_objects, stats->local_objects, stats->total_deltas, stats->indexed_deltas);
             fwrite(str, 1, sizeof(str), fp);
             fclose(fp);
         }

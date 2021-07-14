@@ -129,7 +129,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
                 result.error("Invalid Parameters", "cloneUrl Invalid", null);
                 return;
             }
-            if (statusFile == null || statusFile.isEmpty()) {
+            if (statusFile == null) {
                 result.error("Invalid Parameters", "statusFile Invalid", null);
                 return;
             }
@@ -168,7 +168,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
                 result.error("Invalid Parameters", "remote Invalid", null);
                 return;
             }
-            if (statusFile == null || statusFile.isEmpty()) {
+            if (statusFile == null) {
                 result.error("Invalid Parameters", "statusFile Invalid", null);
                 return;
             }
@@ -207,7 +207,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
                 result.error("Invalid Parameters", "remote Invalid", null);
                 return;
             }
-            if (statusFile == null || statusFile.isEmpty()) {
+            if (statusFile == null) {
                 result.error("Invalid Parameters", "statusFile Invalid", null);
                 return;
             }
