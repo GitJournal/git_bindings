@@ -10,6 +10,14 @@
 
 #define UNUSED(x) (void)(x)
 
+typedef struct
+{
+    bool first_time;
+    int error_code;
+    bool ssh_in_memory;
+    char *status_file;
+} gj_credentials_payload;
+
 int match_cb(const char *path, const char *spec, void *payload)
 {
     UNUSED(spec);
@@ -235,8 +243,6 @@ cleanup:
 
 int fetch_progress(const git_transfer_progress *stats, void *payload)
 {
-    UNUSED(payload);
-
     int fetch_percent =
         (100 * stats->received_objects) /
         stats->total_objects;
@@ -251,6 +257,20 @@ int fetch_progress(const git_transfer_progress *stats, void *payload)
                     stats->received_objects, stats->total_objects,
                     index_percent,
                     stats->indexed_objects, stats->total_objects);
+
+    gj_credentials_payload *gj_payload = (gj_credentials_payload *)payload;
+    if (gj_payload != 0)
+    {
+        if (gj_payload->status_file != 0)
+        {
+            FILE *fp = fopen(gj_payload->status_file, "w");
+            char str[180];
+            sprintf(str, "%d %d %d %d %d %d\n\0", stats->total_objects, stats->indexed_objects, stats->received_objects, stats->local_objects, stats->total_deltas, stats->indexed_deltas);
+            fwrite(str, 1, sizeof(str), fp);
+            fclose(fp);
+        }
+    }
+
     return 0;
 }
 
@@ -306,13 +326,6 @@ void write_keys_to_file(char *base_url)
     write_to_path(g_public_key_path, g_public_key);
     write_to_path(g_private_key_path, g_private_key);
 }
-
-typedef struct
-{
-    bool first_time;
-    int error_code;
-    bool ssh_in_memory;
-} gj_credentials_payload;
 
 bool file_exists(char *filename)
 {
@@ -412,7 +425,7 @@ int certificate_check_cb(git_cert *cert, int valid, const char *host, void *payl
     return 0;
 }
 
-int gj_git_push(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory)
+int gj_git_push(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory, char *status_file)
 {
     g_public_key = public_key;
     g_private_key = private_key;
@@ -455,7 +468,7 @@ int gj_git_push(const char *git_base_path, const char *remote_name, char *public
 
     git_push_options options = GIT_PUSH_OPTIONS_INIT;
 
-    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory};
+    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory, status_file};
     options.callbacks.payload = (void *)&gj_payload;
     options.callbacks.credentials = credentials_cb;
 
@@ -498,7 +511,7 @@ int gj_git_default_branch(const char *git_base_path, const char *remote_name, ch
 
     git_remote_callbacks callbacks = GIT_REMOTE_CALLBACKS_INIT;
 
-    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory};
+    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory, 0};
     callbacks.payload = (void *)&gj_payload;
     callbacks.credentials = credentials_cb;
 
@@ -614,7 +627,7 @@ cleanup:
     git_odb_free(odb);
 }
 
-int gj_git_fetch(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory)
+int gj_git_fetch(const char *git_base_path, const char *remote_name, char *public_key, char *private_key, char *passcode, bool ssh_in_memory, char *status_file)
 {
     g_public_key = public_key;
     g_private_key = private_key;
@@ -646,9 +659,10 @@ int gj_git_fetch(const char *git_base_path, const char *remote_name, char *publi
 
     git_fetch_options options = GIT_FETCH_OPTIONS_INIT;
 
-    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory};
+    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory, status_file};
     options.callbacks.payload = (void *)&gj_payload;
     options.callbacks.credentials = credentials_cb;
+    options.callbacks.transfer_progress = fetch_progress;
 
     err = git_remote_fetch(remote, NULL, &options, NULL);
     if (err < 0)
@@ -661,7 +675,7 @@ cleanup:
     return err;
 }
 
-int gj_git_clone(const char *clone_url, const char *git_base_path, char *public_key, char *private_key, char *passcode, bool ssh_in_memory)
+int gj_git_clone(const char *clone_url, const char *git_base_path, char *public_key, char *private_key, char *passcode, bool ssh_in_memory, char *status_file)
 {
     g_public_key = public_key;
     g_private_key = private_key;
@@ -678,7 +692,7 @@ int gj_git_clone(const char *clone_url, const char *git_base_path, char *public_
     options.fetch_opts.callbacks.transfer_progress = fetch_progress;
     options.fetch_opts.callbacks.certificate_check = certificate_check_cb;
 
-    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory};
+    gj_credentials_payload gj_payload = {true, 0, ssh_in_memory, status_file};
     options.fetch_opts.callbacks.payload = (void *)&gj_payload;
     options.fetch_opts.callbacks.credentials = credentials_cb;
 

@@ -12,10 +12,10 @@ public class Git {
     public native String generateKeys(String privateKeyPath, String publicKeyPath, String comment);
 
     public native String merge(String basePath, String branch, String authorName, String authorEmail);
-    public native String fetch(String basePath, String remote, String publicKey, String privateKey, String password);
-    public native String push(String basePath, String remote, String publicKey, String privateKey, String password);
+    public native String fetch(String basePath, String remote, String publicKey, String privateKey, String password, String statusFile);
+    public native String push(String basePath, String remote, String publicKey, String privateKey, String password, String statusFile);
     public native String defaultBranch(String basePath, String remote, String publicKey, String privateKey, String password);
-    public native String clone(String cloneUrl, String basePath, String publicKey, String privateKey, String password);
+    public native String clone(String cloneUrl, String basePath, String publicKey, String privateKey, String password, String statusFile);
 
     public native String commit(String basePath, String authorName, String authorEmail, String message);
     public native String resetHard(String basePath, String ref);

@@ -55,7 +55,8 @@ Java_io_gitjournal_git_1bindings_Git_fetch(
     jstring jni_remote_name,
     jstring jni_public_key,
     jstring jni_private_key,
-    jstring jni_passphrase)
+    jstring jni_passphrase,
+    jstring jni_status_file)
 {
     UNUSED(this_obj);
     const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
@@ -65,7 +66,9 @@ Java_io_gitjournal_git_1bindings_Git_fetch(
     const char *private_key = (*env)->GetStringUTFChars(env, jni_private_key, 0);
     const char *passphrase = (*env)->GetStringUTFChars(env, jni_passphrase, 0);
 
-    int err = gj_git_fetch(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase, false);
+    const char *status_file = (*env)->GetStringUTFChars(env, jni_status_file, 0);
+
+    int err = gj_git_fetch(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase, false, (char *)status_file);
     return handle_error(env, err);
 }
 
@@ -96,7 +99,8 @@ Java_io_gitjournal_git_1bindings_Git_push(
     jstring jni_remote_name,
     jstring jni_public_key,
     jstring jni_private_key,
-    jstring jni_passphrase)
+    jstring jni_passphrase,
+    jstring jni_status_file)
 {
     UNUSED(this_obj);
     const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
@@ -106,7 +110,9 @@ Java_io_gitjournal_git_1bindings_Git_push(
     const char *private_key = (*env)->GetStringUTFChars(env, jni_private_key, 0);
     const char *passphrase = (*env)->GetStringUTFChars(env, jni_passphrase, 0);
 
-    int err = gj_git_push(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase, false);
+    const char *status_file = (*env)->GetStringUTFChars(env, jni_status_file, 0);
+
+    int err = gj_git_push(git_base_path, remote_name, (char *)public_key, (char *)private_key, (char *)passphrase, false, (char *)status_file);
     return handle_error(env, err);
 }
 
@@ -152,13 +158,15 @@ Java_io_gitjournal_git_1bindings_Git_clone(
     jstring jni_git_base_path,
     jstring jni_public_key,
     jstring jni_private_key,
-    jstring jni_passphrase)
+    jstring jni_passphrase,
+    jstring jni_status_file)
 {
     UNUSED(this_obj);
     const char *clone_url = (*env)->GetStringUTFChars(env, jni_clone_url, 0);
     const char *git_base_path = (*env)->GetStringUTFChars(env, jni_git_base_path, 0);
+    const char *status_file = (*env)->GetStringUTFChars(env, jni_status_file, 0);
 
-    int err = gj_git_clone(clone_url, git_base_path, jni_public_key, jni_private_key, jni_passphrase, false);
+    int err = gj_git_clone(clone_url, git_base_path, jni_public_key, jni_private_key, jni_passphrase, false, (char *)status_file);
     return handle_error(env, err);
 }
 

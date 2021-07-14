@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 // Hack because I don't understand how to link libraries in ios
@@ -25,6 +24,7 @@ class GitRepo {
     required String publicKey,
     required String privateKey,
     required String password,
+    required String statusFile,
   }) async {
     try {
       await invokePlatformMethod('gitFetch', {
@@ -33,6 +33,7 @@ class GitRepo {
         'publicKey': publicKey,
         'privateKey': privateKey,
         'password': password,
+        'statusFile': statusFile,
       });
     } on PlatformException catch (e) {
       throw createGitException(e.message!);
@@ -83,6 +84,7 @@ class GitRepo {
     required String publicKey,
     required String privateKey,
     required String password,
+    required String statusFile,
   }) async {
     try {
       await invokePlatformMethod('gitPush', {
@@ -91,6 +93,7 @@ class GitRepo {
         'publicKey': publicKey,
         'privateKey': privateKey,
         'password': password,
+        'statusFile': statusFile,
       });
     } on PlatformException catch (e) {
       throw createGitException(e.message!);
@@ -103,6 +106,7 @@ class GitRepo {
     required String publicKey,
     required String privateKey,
     required String password,
+    required String statusFile,
   }) async {
     try {
       await invokePlatformMethod('gitClone', {
@@ -111,6 +115,7 @@ class GitRepo {
         'publicKey': publicKey,
         'privateKey': privateKey,
         'password': password,
+        'statusFile': statusFile,
       });
     } on PlatformException catch (e) {
       throw createGitException(e.message!);

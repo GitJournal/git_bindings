@@ -18,9 +18,10 @@ public class GitCloneTask extends AsyncTask<String, Void, Void> {
         final String publicKey = params[2];
         final String privateKey = params[3];
         final String password = params[4];
+        final String statusFile = params[5];
 
         Git git = new Git();
-        String errorStr = git.clone(url, cloneDirPath, publicKey, privateKey, password);
+        String errorStr = git.clone(url, cloneDirPath, publicKey, privateKey, password, statusFile);
         if (!errorStr.isEmpty()) {
             result.error("FAILED", errorStr, null);
             return null;

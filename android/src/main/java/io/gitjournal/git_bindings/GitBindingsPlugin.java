@@ -104,6 +104,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             String privateKey = call.argument("privateKey");
             String publicKey = call.argument("publicKey");
             String password = call.argument("password");
+            String statusFile = call.argument("statusFile");
 
             if (privateKey == null || privateKey.isEmpty()) {
                 result.error("Invalid Parameters", "privateKey Invalid", null);
@@ -128,9 +129,13 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
                 result.error("Invalid Parameters", "cloneUrl Invalid", null);
                 return;
             }
+            if (statusFile == null || statusFile.isEmpty()) {
+                result.error("Invalid Parameters", "statusFile Invalid", null);
+                return;
+            }
 
             AnyThreadResult anyResult = new AnyThreadResult(result);
-            new GitCloneTask(anyResult).execute(folderPath, cloneUrl, publicKey, privateKey, password);
+            new GitCloneTask(anyResult).execute(folderPath, cloneUrl, publicKey, privateKey, password, statusFile);
             return;
         } else if (call.method.equals("gitFetch")) {
             String folderPath = call.argument("folderPath");
@@ -138,6 +143,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             String privateKey = call.argument("privateKey");
             String publicKey = call.argument("publicKey");
             String password = call.argument("password");
+            String statusFile = call.argument("statusFile");
 
             if (privateKey == null || privateKey.isEmpty()) {
                 result.error("Invalid Parameters", "privateKey Invalid", null);
@@ -162,9 +168,13 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
                 result.error("Invalid Parameters", "remote Invalid", null);
                 return;
             }
+            if (statusFile == null || statusFile.isEmpty()) {
+                result.error("Invalid Parameters", "statusFile Invalid", null);
+                return;
+            }
 
             AnyThreadResult anyResult = new AnyThreadResult(result);
-            new GitFetchTask(anyResult).execute(folderPath, publicKey, privateKey, password, remote);
+            new GitFetchTask(anyResult).execute(folderPath, publicKey, privateKey, password, remote, statusFile);
             return;
         } else if (call.method.equals("gitPush")) {
             String folderPath = call.argument("folderPath");
@@ -172,6 +182,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             String privateKey = call.argument("privateKey");
             String publicKey = call.argument("publicKey");
             String password = call.argument("password");
+            String statusFile = call.argument("statusFile");
 
             if (privateKey == null || privateKey.isEmpty()) {
                 result.error("Invalid Parameters", "privateKey Invalid", null);
@@ -196,9 +207,13 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
                 result.error("Invalid Parameters", "remote Invalid", null);
                 return;
             }
+            if (statusFile == null || statusFile.isEmpty()) {
+                result.error("Invalid Parameters", "statusFile Invalid", null);
+                return;
+            }
 
             AnyThreadResult anyResult = new AnyThreadResult(result);
-            new GitPushTask(anyResult).execute(folderPath, publicKey, privateKey, password, remote);
+            new GitPushTask(anyResult).execute(folderPath, publicKey, privateKey, password, remote, statusFile);
             return;
         } else if (call.method.equals("gitDefaultBranch")) {
             String folderPath = call.argument("folderPath");

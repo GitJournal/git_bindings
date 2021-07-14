@@ -16,9 +16,10 @@ public class GitPushTask extends AsyncTask<String, Void, Void> {
         final String privateKey = params[2];
         final String password = params[3];
         final String remote = params[4];
+        final String statusFile = params[5];
 
         Git git = new Git();
-        String errorStr = git.push(cloneDirPath, remote, publicKey, privateKey, password);
+        String errorStr = git.push(cloneDirPath, remote, publicKey, privateKey, password, statusFile);
         if (!errorStr.isEmpty()) {
             result.error("FAILED", errorStr, null);
             return null;
