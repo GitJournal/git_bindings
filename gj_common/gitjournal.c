@@ -265,7 +265,8 @@ int fetch_progress(const git_transfer_progress *stats, void *payload)
         {
             FILE *fp = fopen(gj_payload->status_file, "w");
             char str[180];
-            sprintf(str, "%d %d %d %d %d %d\n", stats->total_objects, stats->indexed_objects, stats->received_objects, stats->local_objects, stats->total_deltas, stats->indexed_deltas);
+            memset(str, 0, sizeof(str));
+            sprintf(str, "%d %d %d %d %d %d %d \n", stats->total_objects, stats->indexed_objects, stats->received_objects, stats->local_objects, stats->total_deltas, stats->indexed_deltas, (int)stats->received_bytes);
             fwrite(str, 1, sizeof(str), fp);
             fclose(fp);
         }
@@ -468,6 +469,11 @@ int gj_git_push(const char *git_base_path, const char *remote_name, char *public
 
     git_push_options options = GIT_PUSH_OPTIONS_INIT;
 
+    if (status_file != 0 && strlen(status_file) == 0)
+    {
+        status_file = 0;
+    }
+
     gj_credentials_payload gj_payload = {true, 0, ssh_in_memory, status_file};
     options.callbacks.payload = (void *)&gj_payload;
     options.callbacks.credentials = credentials_cb;
@@ -659,6 +665,11 @@ int gj_git_fetch(const char *git_base_path, const char *remote_name, char *publi
 
     git_fetch_options options = GIT_FETCH_OPTIONS_INIT;
 
+    if (status_file != 0 && strlen(status_file) == 0)
+    {
+        status_file = 0;
+    }
+
     gj_credentials_payload gj_payload = {true, 0, ssh_in_memory, status_file};
     options.callbacks.payload = (void *)&gj_payload;
     options.callbacks.credentials = credentials_cb;
@@ -691,6 +702,11 @@ int gj_git_clone(const char *clone_url, const char *git_base_path, char *public_
     git_clone_options options = GIT_CLONE_OPTIONS_INIT;
     options.fetch_opts.callbacks.transfer_progress = fetch_progress;
     options.fetch_opts.callbacks.certificate_check = certificate_check_cb;
+
+    if (status_file != 0 && strlen(status_file) == 0)
+    {
+        status_file = 0;
+    }
 
     gj_credentials_payload gj_payload = {true, 0, ssh_in_memory, status_file};
     options.fetch_opts.callbacks.payload = (void *)&gj_payload;
