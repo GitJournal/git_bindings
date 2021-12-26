@@ -299,7 +299,7 @@ char *build_path(char *base_url, char *filename)
 {
     char *str = malloc(strlen(base_url) + strlen(filename) + 10);
     strcpy(str, base_url);
-    strcat(str, "/../../");
+    strcat(str, "/.git/");
     strcat(str, filename);
 
     return str;
@@ -318,14 +318,35 @@ void write_keys_to_file(char *base_url)
         g_private_key_path = NULL;
     }
 
-    g_private_key_path = build_path(base_url, "id_rsa");
-    g_public_key_path = build_path(base_url, "id_rsa.pub");
+    g_private_key_path = build_path(base_url, "id_ed25519");
+    g_public_key_path = build_path(base_url, "id_ed25519.pub");
 
     gj_log_internal("Public Key Path: %s\n", g_public_key_path);
     gj_log_internal("Private Key Path: %s\n", g_private_key_path);
 
     write_to_path(g_public_key_path, g_public_key);
     write_to_path(g_private_key_path, g_private_key);
+
+    chmod(g_private_key_path, 0600);
+}
+
+void delete_keys_from_file()
+{
+    if (g_public_key_path != NULL)
+    {
+        remove(g_public_key_path);
+
+        free(g_public_key_path);
+        g_public_key_path = NULL;
+    }
+
+    if (g_private_key_path != NULL)
+    {
+        remove(g_private_key_path);
+
+        free(g_private_key_path);
+        g_private_key_path = NULL;
+    }
 }
 
 bool file_exists(char *filename)
@@ -488,6 +509,11 @@ cleanup:
     git_remote_free(remote);
     git_repository_free(repo);
 
+    if (!ssh_in_memory)
+    {
+        delete_keys_from_file();
+    }
+
     return err;
 }
 
@@ -542,6 +568,11 @@ cleanup:
     git_buf_dispose(&buf);
     git_remote_free(remote);
     git_repository_free(repo);
+
+    if (!ssh_in_memory)
+    {
+        delete_keys_from_file();
+    }
 
     return err;
 }
@@ -683,6 +714,11 @@ cleanup:
     git_remote_free(remote);
     git_repository_free(repo);
 
+    if (!ssh_in_memory)
+    {
+        delete_keys_from_file();
+    }
+
     return err;
 }
 
@@ -718,6 +754,11 @@ int gj_git_clone(const char *clone_url, const char *git_base_path, char *public_
 
 cleanup:
     git_repository_free(repo);
+
+    if (!ssh_in_memory)
+    {
+        delete_keys_from_file();
+    }
 
     if (gj_payload.error_code != 0)
         return gj_payload.error_code;
