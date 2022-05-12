@@ -135,7 +135,7 @@ public class GitBindingsPlugin implements FlutterPlugin, MethodCallHandler {
             }
 
             AnyThreadResult anyResult = new AnyThreadResult(result);
-            new GitCloneTask(anyResult).execute(folderPath, cloneUrl, publicKey, privateKey, password, statusFile);
+            new GitCloneTask(anyResult).execute(cloneUrl, folderPath, publicKey, privateKey, password, statusFile);
             return;
         } else if (call.method.equals("gitFetch")) {
             String folderPath = call.argument("folderPath");
