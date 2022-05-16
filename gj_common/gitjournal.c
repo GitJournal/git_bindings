@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <string.h>
+#include <libgen.h>
 
 #include <git2.h>
 
@@ -287,6 +288,7 @@ int write_to_path(char *path, char *value)
 
     if (fptr == NULL)
     {
+        gj_log_internal("Failed to write to file: %s\n", path);
         return -1;
     }
 
@@ -295,11 +297,21 @@ int write_to_path(char *path, char *value)
     return 0;
 }
 
-char *build_path(char *base_url, char *filename)
+char *build_git_path(char *base_url, char *filename)
 {
     char *str = malloc(strlen(base_url) + strlen(filename) + 10);
     strcpy(str, base_url);
     strcat(str, "/.git/");
+    strcat(str, filename);
+
+    return str;
+}
+
+char *build_path(char *base_url, char *filename)
+{
+    char *str = malloc(strlen(base_url) + strlen(filename) + 10);
+    strcpy(str, base_url);
+    strcat(str, "/");
     strcat(str, filename);
 
     return str;
@@ -318,8 +330,20 @@ void write_keys_to_file(char *base_url)
         g_private_key_path = NULL;
     }
 
-    g_private_key_path = build_path(base_url, "id_ed25519");
-    g_public_key_path = build_path(base_url, "id_ed25519.pub");
+    // Make sure the base_url exists
+    struct stat sb;
+    if (stat(base_url, &sb) == 0 && S_ISDIR(sb.st_mode))
+    {
+        // Directory exists
+        g_private_key_path = build_git_path(base_url, "id_ed25519");
+        g_public_key_path = build_git_path(base_url, "id_ed25519.pub");
+    }
+    else
+    {
+        base_url = dirname(base_url);
+        g_private_key_path = build_path(base_url, "id_ed25519");
+        g_public_key_path = build_path(base_url, "id_ed25519.pub");
+    }
 
     gj_log_internal("Public Key Path: %s\n", g_public_key_path);
     gj_log_internal("Private Key Path: %s\n", g_private_key_path);
